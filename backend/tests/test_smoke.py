@@ -7,7 +7,7 @@ about how the plugin loads.
 """
 
 
-def test_app_config_importable():
+def test_app_config_importable() -> None:
     """The AppConfig must import without side effects beyond Django app loading."""
     from registration_demographics.apps import RegistrationDemographicsConfig
 
@@ -15,14 +15,14 @@ def test_app_config_importable():
     assert "lms.djangoapp" in RegistrationDemographicsConfig.plugin_app["url_config"]
 
 
-def test_plugin_settings_applied():
+def test_plugin_settings_applied() -> None:
     """plugin_settings() should populate the departments default."""
     from django.conf import settings
 
     assert settings.REGISTRATION_DEMOGRAPHICS_DEPARTMENTS == ["eng", "ops", "edu"]
 
 
-def test_urls_module_importable():
+def test_urls_module_importable() -> None:
     """The urls module must be importable at plugin-load time."""
     from registration_demographics import urls
 

@@ -17,7 +17,7 @@ from openedx_filters.learning.filters import StudentRegistrationRequested
 from registration_demographics.pipeline import ValidateDemographicsFields
 
 
-def _make_step():
+def _make_step() -> ValidateDemographicsFields:
     return ValidateDemographicsFields(
         filter_type=StudentRegistrationRequested.filter_type,
         running_pipeline=[
@@ -26,7 +26,7 @@ def _make_step():
     )
 
 
-def _qd(**kwargs) -> QueryDict:
+def _qd(**kwargs: str) -> QueryDict:
     """Build an immutable QueryDict from kwargs (matches the platform shape)."""
     qd = QueryDict(mutable=True)
     for key, value in kwargs.items():
@@ -40,7 +40,7 @@ def _qd(**kwargs) -> QueryDict:
 # ---------------------------------------------------------------------------
 
 
-def test_passes_through_when_fields_absent():
+def test_passes_through_when_fields_absent() -> None:
     """The step is a no-op if neither demographic field is present."""
     step = _make_step()
     form = _qd(username="alice", email="alice@example.com")
@@ -48,7 +48,7 @@ def test_passes_through_when_fields_absent():
     assert result == {"form_data": form}
 
 
-def test_normalises_pronouns_whitespace():
+def test_normalises_pronouns_whitespace() -> None:
     step = _make_step()
     form = _qd(pronouns="  they/them  ", department="eng")
     result = step.run_filter(form)
@@ -57,21 +57,21 @@ def test_normalises_pronouns_whitespace():
     assert form["pronouns"] == "  they/them  "
 
 
-def test_accepts_valid_department():
+def test_accepts_valid_department() -> None:
     step = _make_step()
     form = _qd(department="eng")
     result = step.run_filter(form)
     assert result["form_data"]["department"] == "eng"
 
 
-def test_accepts_blank_department():
+def test_accepts_blank_department() -> None:
     step = _make_step()
     form = _qd(department="")
     result = step.run_filter(form)
     assert result["form_data"]["department"] == ""
 
 
-def test_rejects_unknown_department():
+def test_rejects_unknown_department() -> None:
     step = _make_step()
     form = _qd(department="does-not-exist")
     with pytest.raises(StudentRegistrationRequested.PreventRegistration) as excinfo:
@@ -79,7 +79,7 @@ def test_rejects_unknown_department():
     assert "does-not-exist" in str(excinfo.value)
 
 
-def test_prevent_registration_carries_error_code():
+def test_prevent_registration_carries_error_code() -> None:
     step = _make_step()
     form = _qd(department="bogus")
     with pytest.raises(StudentRegistrationRequested.PreventRegistration) as excinfo:
@@ -93,7 +93,7 @@ def test_prevent_registration_carries_error_code():
 # ---------------------------------------------------------------------------
 
 
-def test_filter_runner_invokes_our_step():
+def test_filter_runner_invokes_our_step() -> None:
     """settings.OPEN_EDX_FILTERS_CONFIG actually wires us into the pipeline."""
     form = _qd(pronouns="  she/her  ", department="eng")
     result = StudentRegistrationRequested.run_filter(form_data=form)
@@ -101,7 +101,7 @@ def test_filter_runner_invokes_our_step():
     assert result["pronouns"] == "she/her"
 
 
-def test_filter_runner_aborts_on_invalid_department():
+def test_filter_runner_aborts_on_invalid_department() -> None:
     form = _qd(department="invalid")
     with pytest.raises(StudentRegistrationRequested.PreventRegistration):
         StudentRegistrationRequested.run_filter(form_data=form)

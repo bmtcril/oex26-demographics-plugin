@@ -83,6 +83,7 @@ include = ["src", "tests"]
 reportMissingImports = true
 reportMissingModuleSource = false
 reportIncompatibleVariableOverride = false
+reportMissingParameterType = "error"
 
 [tool.setuptools]
 include-package-data = true

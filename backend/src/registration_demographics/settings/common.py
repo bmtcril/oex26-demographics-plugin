@@ -14,10 +14,12 @@ The function is called exactly once per environment by
 ``edx_django_utils.plugins`` when the LMS settings module loads.
 """
 
+from typing import Any
+
 from openedx_filters.learning.filters import StudentRegistrationRequested
 
 
-def plugin_settings(settings):
+def plugin_settings(settings: Any) -> None:
     """Merge plugin defaults into the LMS ``settings`` module."""
     # ------------------------------------------------------------------
     # Default department allowlist. Override per-deployment via Tutor.

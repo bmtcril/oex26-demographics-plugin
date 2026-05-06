@@ -12,7 +12,7 @@ Covers the contract the frontend depends on:
 """
 
 import pytest
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -20,8 +20,8 @@ from registration_demographics.models import LearnerDemographics
 
 
 @pytest.fixture
-def user(db):
-    return get_user_model().objects.create_user(
+def user(db: None) -> User:
+    return User.objects.create_user(
         username="alice",
         email="alice@example.com",
         password="pw",  # noqa: S106 — tests only
@@ -29,8 +29,8 @@ def user(db):
 
 
 @pytest.fixture
-def other_user(db):
-    return get_user_model().objects.create_user(
+def other_user(db: None) -> User:
+    return User.objects.create_user(
         username="bob",
         email="bob@example.com",
         password="pw",  # noqa: S106 — tests only
@@ -38,21 +38,23 @@ def other_user(db):
 
 
 @pytest.fixture
-def client():
+def client() -> APIClient:
     return APIClient()
 
 
 @pytest.fixture
-def me_url():
+def me_url() -> str:
     return reverse("registration_demographics:me")
 
 
-def test_anonymous_get_rejected(client, me_url):
+def test_anonymous_get_rejected(client: APIClient, me_url: str) -> None:
     response = client.get(me_url)
     assert response.status_code in (401, 403)
 
 
-def test_authenticated_get_autocreates_empty_record(client, user, me_url):
+def test_authenticated_get_autocreates_empty_record(
+    client: APIClient, user: User, me_url: str
+) -> None:
     assert not LearnerDemographics.objects.filter(user=user).exists()
     client.force_authenticate(user=user)
     response = client.get(me_url)
@@ -62,7 +64,7 @@ def test_authenticated_get_autocreates_empty_record(client, user, me_url):
     assert LearnerDemographics.objects.filter(user=user).exists()
 
 
-def test_patch_updates_fields(client, user, me_url):
+def test_patch_updates_fields(client: APIClient, user: User, me_url: str) -> None:
     client.force_authenticate(user=user)
     client.get(me_url)  # ensure record exists
     response = client.patch(
@@ -78,7 +80,9 @@ def test_patch_updates_fields(client, user, me_url):
     assert record.department == "eng"
 
 
-def test_patch_rejects_unknown_department(client, user, me_url):
+def test_patch_rejects_unknown_department(
+    client: APIClient, user: User, me_url: str
+) -> None:
     client.force_authenticate(user=user)
     response = client.patch(
         me_url,
@@ -89,17 +93,21 @@ def test_patch_rejects_unknown_department(client, user, me_url):
     assert "department" in response.data
 
 
-def test_patch_accepts_blank_department(client, user, me_url):
+def test_patch_accepts_blank_department(
+    client: APIClient, user: User, me_url: str
+) -> None:
     client.force_authenticate(user=user)
     response = client.patch(me_url, {"department": ""}, format="json")
     assert response.status_code == 200
 
 
-def test_endpoint_scoped_to_request_user(client, user, other_user, me_url):
+def test_endpoint_scoped_to_request_user(
+    client: APIClient, user: User, other_user: User, me_url: str
+) -> None:
     """One user's PATCH must not leak into another user's record."""
     LearnerDemographics.objects.create(user=other_user, pronouns="she/her")
     client.force_authenticate(user=user)
     response = client.patch(me_url, {"pronouns": "they/them"}, format="json")
     assert response.status_code == 200
     other_user.refresh_from_db()
-    assert other_user.demographics.pronouns == "she/her"
+    assert other_user.demographics.pronouns == "she/her"  # type: ignore[attr-defined]

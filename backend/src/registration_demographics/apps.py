@@ -57,7 +57,7 @@ class RegistrationDemographicsConfig(AppConfig):
         # makes the loading order easier to reason about during the workshop.
     }
 
-    def ready(self):
+    def ready(self) -> None:
         """
         Run plugin startup code.
 

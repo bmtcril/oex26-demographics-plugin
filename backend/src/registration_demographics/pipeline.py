@@ -18,6 +18,9 @@ about what a valid department is. If you change the rules, change them
 there.
 """
 
+from typing import Any
+
+from django.http import QueryDict
 from openedx_filters.filters import PipelineStep
 from openedx_filters.learning.filters import StudentRegistrationRequested
 from rest_framework import serializers as drf_serializers
@@ -34,7 +37,7 @@ class ValidateDemographicsFields(PipelineStep):
     ``settings/common.py``).
     """
 
-    def run_filter(self, form_data, *args, **kwargs):  # type: ignore[override]
+    def run_filter(self, form_data: QueryDict, *args: Any, **kwargs: Any) -> dict[str, Any]:  # type: ignore[override]
         """
         Validate and normalise the demographic form fields in-place.
 

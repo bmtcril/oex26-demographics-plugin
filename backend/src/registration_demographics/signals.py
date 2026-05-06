@@ -18,6 +18,7 @@ Why a receiver and not a synchronous write in the registration view?
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
@@ -30,9 +31,9 @@ log = logging.getLogger(__name__)
 
 @receiver(REGISTRATION_DEMOGRAPHICS_CAPTURED)
 def persist_registration_demographics(
-    sender,  # noqa: ARG001 — required by Django signal contract
+    sender: Any,  # noqa: ARG001 — required by Django signal contract
     demographics: RegistrationDemographicsData,
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     """
     Persist a ``RegistrationDemographicsData`` payload to the database.
