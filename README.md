@@ -37,7 +37,7 @@ participants can compare the two side-by-side.
 | **Filter** | New pipeline step on `StudentRegistrationRequested` that validates the demographic fields. | [`backend/src/registration_demographics/pipeline.py`](./backend/) |
 | **Event** | A brand-new `RegistrationDemographicsCaptured` event fired after successful registration. | [`upstream-patches/openedx-events.patch`](./upstream-patches/) (definition) and [`backend/src/registration_demographics/signals.py`](./backend/) (receiver) |
 | **Django app plugin** | New `LearnerDemographics` model, REST API, admin, migrations. | [`backend/src/registration_demographics/`](./backend/) |
-| **Tutor plugin** | One-shot installer that wires everything above into LMS + the `authn` MFE. | [`tutor/tutordemographicsplugin/plugin.py`](./tutor/) |
+| **Tutor plugin** | One-shot installer that wires everything above into LMS + the `authn` MFE. | [`tutor_plugin/tutordemographicsplugin/plugin.py`](./tutor_plugin/) |
 
 > Aspects / xAPI integration is **out of scope** for this workshop but
 > mentioned in [§6 of the workshop plan](./workshop-plan.md) as the next step.
@@ -55,7 +55,7 @@ repo so you can flip between them.
 | Open edX Events receiver | `signals.py` | `backend/src/registration_demographics/signals.py` |
 | Open edX Filters pipeline step | `pipeline.py` | `backend/src/registration_demographics/pipeline.py` |
 | Frontend MFE plugin | `frontend/src/plugin.jsx` | `frontend/src/DemographicsFields.jsx` |
-| Tutor plugin | `tutor/tutorsampleplugin/plugin.py` | `tutor/tutordemographicsplugin/plugin.py` |
+| Tutor plugin | `tutor/tutorsampleplugin/plugin.py` | `tutor_plugin/tutordemographicsplugin/plugin.py` |
 | Upstream platform changes | _(none — sample-plugin only consumes existing extension points)_ | `upstream-patches/` |
 
 The last row is the headline difference: this workshop is about **creating
@@ -74,8 +74,8 @@ plugin.
 > **Note:** Until the [`upstream-patches/`](./upstream-patches/) are merged
 > upstream, you'll need to apply them to your local `frontend-app-authn`,
 > `openedx-events`, and `edx-platform` checkouts before the demo will be
-> fully functional. See [`upstream-patches/README.md`](./upstream-patches/)
-> for instructions. The plugin itself degrades gracefully if the upstream
+> fully functional. Each patch file has a detailed commit message explaining
+> what to apply and why. The plugin itself degrades gracefully if the upstream
 > hooks aren't present — useful while reviewing.
 
 ```bash
@@ -87,7 +87,7 @@ cd oex26-demographics-plugin
 tutor mounts add ./backend
 
 # 3. Install + enable the Tutor plugin
-tutor plugins install ./tutor
+tutor plugins install ./tutor_plugin
 tutor plugins enable demographics_plugin
 
 # 4. Build & launch
@@ -118,7 +118,7 @@ oex26-demographics-plugin/
 │   └── src/registration_demographics/
 ├── frontend/                       ← React component (npm-publishable)
 │   └── src/DemographicsFields.jsx
-├── tutor/                          ← Tutor plugin that ties it all together
+├── tutor_plugin/                   ← Tutor plugin that ties it all together
 │   └── tutordemographicsplugin/plugin.py
 └── upstream-patches/               ← what we'd send upstream to make the
     ├── frontend-app-authn.patch    ←   extension points exist
@@ -140,7 +140,7 @@ For facilitators walking through the [workshop plan](./workshop-plan.md):
 | §4 Frontend: adding a plugin slot | `upstream-patches/frontend-app-authn.patch`, then `frontend/src/DemographicsFields.jsx` |
 | §5A Adding a filter | `backend/src/registration_demographics/pipeline.py`, `backend/src/registration_demographics/settings/common.py` |
 | §5B Adding / extending an event | `upstream-patches/openedx-events.patch`, `upstream-patches/edx-platform.patch`, `backend/src/registration_demographics/signals.py` |
-| §6 Django plugins & Tutor wiring | `backend/pyproject.toml`, `backend/src/registration_demographics/apps.py`, `tutor/tutordemographicsplugin/plugin.py` |
+| §6 Django plugins & Tutor wiring | `backend/pyproject.toml`, `backend/src/registration_demographics/apps.py`, `tutor_plugin/tutordemographicsplugin/plugin.py` |
 | §7 Getting it merged | commit messages on each patch in `upstream-patches/` |
 
 ---
@@ -156,6 +156,12 @@ they were ready-to-send PRs against:
 
 Their commit messages double as the "discussion-first" forum posts described
 in workshop §7.
+
+---
+
+## End-to-end smoke test
+
+See **[`E2E.md`](./E2E.md)** for the complete walkthrough — from applying the upstream patches to verifying the filter, event, DB record, and REST API in a `tutor dev` environment.
 
 ---
 

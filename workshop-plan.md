@@ -58,9 +58,9 @@ The running example lives in this repo. As facilitators, this is what's already 
 | §6      | `backend/src/registration_demographics/apps.py` — Django plugin entry point                  | ✅ |
 | §6      | `backend/src/registration_demographics/{models,serializers,views,urls}.py` + migration       | ✅ |
 | §6      | `backend/tests/` — model, viewset, pipeline, signal, smoke tests                             | ✅ |
-| §6      | `tutor/tutordemographicsplugin/plugin.py` — Tutor plugin                                     | ⏳ TODO |
-| —       | Top-level `README.md` (Quick Start, plugin types table, workshop ↔ code map)                 | ⏳ TODO |
-| —       | `docs/E2E.md` (or README section) — end-to-end smoke test commands                           | ⏳ TODO |
+| §6      | `tutor_plugin/tutordemographicsplugin/plugin.py` — Tutor plugin                              | ✅ |
+| —       | Top-level `README.md` (Quick Start, plugin types table, workshop ↔ code map)                 | ✅ Done |
+| —       | `E2E.md` — end-to-end smoke test commands                                                     | ✅ Done |
 
 The `private/Demographic Plumbing Plugin Repository Architecture Plan.md` document captures the full build plan and the renumbered step ordering we're following.
 
@@ -240,10 +240,22 @@ This is the meatiest section and follows a live-coding format.
 
 2. **Tutor integration** (walk through `tutor/tutordemographicsplugin/plugin.py`):
    - `MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))` so `tutor mounts add ./backend` works for dev.
-   - `ENV_PATCHES["openedx-dockerfile-post-python-requirements"]` — installs the plugin package into the LMS image.
+   - `ENV_PATCHES["openedx-lms-dockerfile-post-python-requirements"]` — installs the plugin package into the LMS image only (not CMS, consistent with the `lms.djangoapp`-only entry point).
    - `CLI_DO_INIT_TASKS` — runs `./manage.py lms migrate registration_demographics` on init.
    - `tutormfe`-conditional patches: `mfe-dockerfile-post-npm-install` to install the npm package, `mfe-env-config-buildtime-imports` to import `DemographicsFields`, and `PLUGIN_SLOTS.add_item(...)` to register it against `org.openedx.frontend.authn.register.additional_fields.v1`. The plugin degrades gracefully if `tutormfe` isn't installed.
    - Run through `tutor plugins install ./tutor` → `tutor plugins enable demographics_plugin` → `tutor dev launch`.
+
+   **Talking point — LMS-only patch mirrors the LMS-only entry point.** The plugin uses `openedx-lms-dockerfile-post-python-requirements` rather than the shared `openedx-dockerfile-post-python-requirements`. This is the same scope decision made in `pyproject.toml` (`lms.djangoapp` only) now showing up again in the Tutor layer — the two reinforce each other. Ask participants: *what would break if we used the shared patch but kept the LMS-only entry point?* Answer: nothing at runtime, but CMS images would carry a package they never load, which wastes image size and creates a maintenance surface. The layers should stay consistent.
+
+   **Talking point — graceful degradation with `try/except ImportError`.** The `_tutormfe_available` guard at the top of `plugin.py` means the backend half of the plugin (filter, event, model, API) works on any deployment, even one that hasn't migrated to MFEs. Operators who are still on the legacy registration page simply don't get the frontend fields — they can collect demographics via the REST API by other means. This pattern is worth generalising: always ask "what does my plugin do if its optional dependencies aren't present?" and design the guard before writing the conditional code.
+
+   **Talking point — three steps to wire a frontend plugin, and why each is necessary.**
+   - *Step 1 (`mfe-dockerfile-post-npm-install`)* — bakes the npm package into the MFE Docker image at build time. Without this the import in step 2 fails at container start.
+   - *Step 2 (`mfe-env-config-buildtime-imports`)* — adds the `import` statement to `env.config.jsx`. The plugin slot config in step 3 references `DemographicsFields` by name; it must be in scope in that file or the MFE throws a ReferenceError.
+   - *Step 3 (`PLUGIN_SLOTS.add_item(...)`)* — registers the component against the slot ID at runtime. Steps 1 and 2 together just make the code available; this step actually connects it to the UI.
+   The order matters and each step is load-bearing. A common mistake is to do step 3 and forget step 1 or 2, which produces a confusing ReferenceError with no obvious link to the missing install.
+
+   **Talking point — Insert without Hide.** The sample-plugin's learner-dashboard slot uses `PLUGIN_OPERATIONS.Hide` to remove the default widget before inserting its own replacement. Our slot (`additional_fields`) is *empty by default* — there is no built-in widget to hide. Using a bare `Insert` here is intentional, not an omission. Ask participants to spot the difference when reading sample-plugin's plugin.py alongside ours.
 
 3. **Pushing to Aspects (mention only):**
    - Events emitted to the event bus can be consumed by Aspects pipelines.
