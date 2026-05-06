@@ -48,7 +48,7 @@ The running example lives in this repo. As facilitators, this is what's already 
 | Section | Code artefact                                                                                | Status |
 |---------|----------------------------------------------------------------------------------------------|--------|
 | §4      | `upstream-patches/frontend-app-authn.patch` — adds the slot + `slot.md` doc                  | ✅ drafted |
-| §4      | `frontend/` — npm package providing the `DemographicsFields` plugin component                | ⏳ TODO |
+| §4      | `frontend/` — npm package providing the `DemographicsFields` plugin component                | ✅ |
 | §5A     | `backend/src/registration_demographics/pipeline.py` — `ValidateDemographicsFields` step      | ✅ |
 | §5A     | `backend/src/registration_demographics/settings/common.py` — filter pipeline registration    | ✅ |
 | §5B     | `backend/src/registration_demographics/events.py` — `REGISTRATION_DEMOGRAPHICS_CAPTURED`     | ✅ |

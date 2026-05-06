@@ -1,0 +1,33 @@
+{
+  "name": "openedx-demographics-plugin",
+  "version": "0.1.0",
+  "description": "OEX 2026 workshop reference: frontend plugin component for the registration additional-fields slot.",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openedx/oex26-demographics-plugin"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "peerDependencies": {
+    "@openedx/paragon": ">=22",
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.24.0",
+    "@testing-library/jest-dom": "^6.4.0",
+    "@testing-library/react": "^14.2.0",
+    "@testing-library/user-event": "^14.5.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
