@@ -1,0 +1,115 @@
+From 0000000000000000000000000000000000000001 Mon Sep 17 00:00:00 2001
+From: OEX Workshop <workshop@example.com>
+Date: Tue, 5 May 2026 12:00:00 +0000
+Subject: [PATCH] feat: add RegistrationDemographicsCaptured public signal
+
+Adds a new public signal, ``REGISTRATION_DEMOGRAPHICS_CAPTURED``, fired
+by LMS once a learner has successfully registered and any optional
+demographic fields collected by an authn-form plugin have been
+validated.
+
+Why a new event rather than extending ``STUDENT_REGISTRATION_COMPLETED``?
+
+* ``STUDENT_REGISTRATION_COMPLETED`` carries only ``UserData`` today.
+  Adding optional demographic fields to it would force every existing
+  receiver to deal with the new attrs, and would couple a generic
+  registration event to one specific use case (demographics collection).
+* A dedicated event lets deployments that don't collect demographics
+  ignore it entirely, and lets deployments that do route it onto the
+  event bus (Kafka/Redis) without touching the higher-volume
+  registration-completed stream.
+* Versioning the signal independently (``...captured.v1``) means future
+  changes to demographic field shape don't require bumping
+  ``STUDENT_REGISTRATION_COMPLETED``.
+
+The payload is intentionally minimal: a ``UserData`` reference plus the
+two free-form string fields the plugin slot collects (``pronouns``,
+``department``). Fields default to empty strings so receivers don't have
+to special-case "demographics not collected on this deployment".
+
+Reference: see the OEX 2026 workshop "Leveraging Open edX Extension
+Points" running example — this event is the one its registration
+demographics plugin subscribes to.
+
+---
+ openedx_events/learning/data.py    | 22 ++++++++++++++++++++++
+ openedx_events/learning/signals.py | 12 ++++++++++++
+ docs/decisions/0017-events.rst     |  6 ++++++
+ 3 files changed, 40 insertions(+)
+
+diff --git a/openedx_events/learning/data.py b/openedx_events/learning/data.py
+--- a/openedx_events/learning/data.py
++++ b/openedx_events/learning/data.py
+@@ -120,3 +120,25 @@ class CourseEnrollmentData:
+     mode = attr.ib(type=str)
+     is_active = attr.ib(type=bool)
+     creation_date = attr.ib(type=datetime)
+     created_by = attr.ib(type=UserData, default=None)
++
++
++@attr.s(frozen=True)
++class RegistrationDemographicsData:
++    """
++    Attributes defined for Open edX registration demographics object.
++
++    Fired alongside a successful registration when a deployment has
++    enabled an authn-form plugin slot that collects optional demographic
++    information about the learner.
++
++    Both ``pronouns`` and ``department`` default to the empty string so
++    receivers can be written without ``hasattr`` / ``None`` checks; a
++    deployment that has not enabled demographics collection simply never
++    fires the signal at all.
++
++    Arguments:
++        user (UserData): the just-registered user.
++        pronouns (str): free-text pronouns string. Empty if not provided.
++        department (str): department key from the operator-configured
++            allowlist. Empty if not provided.
++    """
++
++    user = attr.ib(type=UserData)
++    pronouns = attr.ib(type=str, default="")
++    department = attr.ib(type=str, default="")
+diff --git a/openedx_events/learning/signals.py b/openedx_events/learning/signals.py
+--- a/openedx_events/learning/signals.py
++++ b/openedx_events/learning/signals.py
+@@ -18,6 +18,7 @@ from openedx_events.learning.data import (
+     CertificateData,
+     CourseEnrollmentData,
+     CourseDiscussionConfigurationData,
++    RegistrationDemographicsData,
+     UserData,
+ )
+ from openedx_events.tooling import OpenEdxPublicSignal
+@@ -55,3 +56,14 @@ STUDENT_REGISTRATION_COMPLETED = OpenEdxPublicSignal(
+         "user": UserData,
+     }
+ )
++
++# .. event_type: org.openedx.learning.student.registration.demographics.captured.v1
++# .. event_name: REGISTRATION_DEMOGRAPHICS_CAPTURED
++# .. event_description: emitted after STUDENT_REGISTRATION_COMPLETED when an
++#       authn-form plugin slot has collected optional demographic fields.
++# .. event_data: RegistrationDemographicsData
++REGISTRATION_DEMOGRAPHICS_CAPTURED = OpenEdxPublicSignal(
++    event_type="org.openedx.learning.student.registration.demographics.captured.v1",
++    data={
++        "demographics": RegistrationDemographicsData,
++    }
++)
+diff --git a/docs/decisions/0017-events.rst b/docs/decisions/0017-events.rst
+--- a/docs/decisions/0017-events.rst
++++ b/docs/decisions/0017-events.rst
+@@ -42,3 +42,9 @@ Existing events
+ * ``CERTIFICATE_REVOKED``
+ * ``COURSE_DISCUSSIONS_CHANGED``
+ * ``STUDENT_REGISTRATION_COMPLETED``
++* ``REGISTRATION_DEMOGRAPHICS_CAPTURED`` — fired after a successful
++  registration when the deployment has enabled the
++  ``org.openedx.frontend.authn.register.additional_fields.v1`` plugin
++  slot and the learner has supplied any of the optional demographic
++  fields. Receivers should treat individual fields as opt-in: empty
++  strings indicate the learner declined to provide that field.
+--
+2.45.0

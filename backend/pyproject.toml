@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openedx-registration-demographics-plugin"
+version = "0.1.0"
+description = "OEX 2026 workshop reference: a Django plugin that captures additional demographic fields during learner registration."
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["../LICENSE"]
+readme = "README.md"
+authors = [
+    { name = "OEX 2026 Workshop Contributors" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["openedx", "django", "plugin", "extension-points", "workshop"]
+
+dependencies = [
+    "Django>=4.2,<6.0",
+    "djangorestframework",
+    "django-filter",
+    "edx-django-utils",
+    "openedx-events",
+    "openedx-filters",
+]
+
+# ---------------------------------------------------------------------------
+# Open edX Django App Plugin entry point.
+#
+# Registration is LMS-only: this plugin only adds value to lms.djangoapp
+# because:
+#   - the registration filter / event are emitted from LMS code paths,
+#   - the demographics REST API is consumed by the authn MFE (LMS side),
+#   - there is no Studio (CMS) surface for this feature.
+#
+# Compare with sample-plugin, which registers under both lms.djangoapp and
+# cms.djangoapp because its course-archive feature is meaningful in both.
+# ---------------------------------------------------------------------------
+[project.entry-points."lms.djangoapp"]
+registration_demographics = "registration_demographics.apps:RegistrationDemographicsConfig"
+
+[project.urls]
+Homepage = "https://github.com/openedx/oex26-demographics-plugin"
+Repository = "https://github.com/openedx/oex26-demographics-plugin"
+"Workshop Plan" = "https://github.com/openedx/oex26-demographics-plugin/blob/main/workshop-plan.md"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-cov",
+    "factory-boy",
+]
+dev = [
+    "pyright",
+    "ruff",
+    "django-stubs",
+    "djangorestframework-stubs",
+]
+
+[tool.ruff]
+line-length = 119
+exclude = ["src/**/migrations/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.12"
+include = ["src", "tests"]
+reportMissingImports = true
+reportMissingModuleSource = false
+reportIncompatibleVariableOverride = false
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_settings"
+python_files = ["test_*.py", "tests.py"]
+addopts = "-ra"

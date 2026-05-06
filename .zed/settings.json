@@ -1,0 +1,33 @@
+{
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      "formatter": {
+        "language_server": {
+          "name": "ruff"
+        }
+      }
+    }
+  },
+  "lsp": {
+    "pyright": {
+      "settings": {
+        "python": {
+          "pythonPath": "/home/ty/Dev/oex26-workshop/backend/.venv/bin/python",
+          "venvPath": "/home/ty/Dev/oex26-workshop/backend",
+          "venv": ".venv"
+        }
+      }
+    },
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 119,
+          "lint": {
+            "select": ["E", "F", "W", "I", "UP"]
+          }
+        }
+      }
+    }
+  }
+}
