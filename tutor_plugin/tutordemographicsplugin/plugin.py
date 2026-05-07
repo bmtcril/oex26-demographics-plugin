@@ -47,11 +47,11 @@ hooks.Filters.ENV_PATCHES.add_item(
 )
 
 # ---------------------------------------------------------------------------
-# Custom setup, we don't need to do anything special on init but this is
+# Custom setup step, we don't need to do anything special on init but this is
 # where it would happen
 # ---------------------------------------------------------------------------
 
-hooks.Filters.CLI_DO_INIT_TASKS.add_item()
+# hooks.Filters.CLI_DO_INIT_TASKS.add_item()
 
 # ---------------------------------------------------------------------------
 # Frontend: Install npm package and configure the authn registration slot

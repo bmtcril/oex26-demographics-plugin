@@ -80,7 +80,7 @@ plugin.
 
 ```bash
 # 1. Clone this repo
-git clone https://github.com/openedx/oex26-demographics-plugin.git
+git clone https://github.com/bmtcril/oex26-demographics-plugin.git
 cd oex26-demographics-plugin
 
 # 2. Mount the backend so dev edits are live

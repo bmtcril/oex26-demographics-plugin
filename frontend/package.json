@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openedx/oex26-demographics-plugin"
+    "url": "https://github.com/bmtcril/oex26-demographics-plugin"
   },
   "license": "Apache-2.0",
   "scripts": {

@@ -50,9 +50,9 @@ dependencies = [
 registration_demographics = "registration_demographics.apps:RegistrationDemographicsConfig"
 
 [project.urls]
-Homepage = "https://github.com/openedx/oex26-demographics-plugin"
-Repository = "https://github.com/openedx/oex26-demographics-plugin"
-"Workshop Plan" = "https://github.com/openedx/oex26-demographics-plugin/blob/main/workshop-plan.md"
+Homepage = "https://github.com/bmtcril/oex26-demographics-plugin"
+Repository = "https://github.com/bmtcril/oex26-demographics-plugin"
+"Workshop Plan" = "https://github.com/bmtcril/oex26-demographics-plugin/blob/main/workshop-plan.md"
 
 [project.optional-dependencies]
 test = [

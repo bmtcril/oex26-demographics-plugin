@@ -85,5 +85,7 @@ module.config.js
 *.swo
 .DS_Store
 Thumbs.db
+.zed/
 
 private/
+.tutor_root/

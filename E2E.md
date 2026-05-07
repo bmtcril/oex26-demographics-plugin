@@ -8,14 +8,16 @@ This guide gets you from a fresh clone to a working demographics feature in a Tu
 
 - Tutor ≥ 20 with a working `tutor dev` environment
 - [`tutor-mfe`](https://github.com/overhangio/tutor-mfe) installed and enabled
-- Local checkouts of `frontend-app-authn`, `openedx-events`, and `edx-platform` (for the upstream patches — skip if you're OK without the live MFE fields and event firing)
 
 ---
 
 ## 1. Clone and position
 
 ```bash
-git clone https://github.com/openedx/oex26-demographics-plugin.git
+git clone https://github.com/openedx/openedx-platform.git
+git clone https://github.com/openedx/frontend-app-authn.git
+git clone https://github.com/openedx/openedx-events.git
+git clone https://github.com/bmtcril/oex26-demographics-plugin.git
 cd oex26-demographics-plugin
 ```
 
@@ -30,6 +32,8 @@ The plugin's filter step, event receiver, and REST API all work without the patc
 | `openedx-events.patch` | `REGISTRATION_DEMOGRAPHICS_CAPTURED` signal definition | Receiver logs a warning and is a no-op |
 | `edx-platform.patch` | Fires that event after successful registration | Event never fires |
 | `frontend-app-authn.patch` | Plugin slot in the registration form | Demographics fields don't appear in the MFE |
+
+We assume you have the `frontend-app-authn`, `openedx-events`, and `edx-platform` repositories checked out one directory above this one, but the paths below can be adjusted as needed.
 
 ```bash
 # In your frontend-app-authn checkout:
@@ -48,21 +52,29 @@ If the patches don't apply cleanly (upstream has moved), review the diffs manual
 
 ## 3. Install the Tutor plugin
 
+If not already enabled, the `mfe` plugin must be enabled as well.
+
 ```bash
 # From the repo root — install the tutor plugin package into tutor's Python env
 pip install -e ./tutor_plugin
 
 tutor plugins enable demographics_plugin
-tutor plugins list   # demographics_plugin should appear as enabled
+tutor plugins list   # demographics_plugin and mfe should appear as enabled
 ```
 
 ---
 
-## 4. Mount the backend for live edits
+## 4. Mount the backend and authn MFE for live edits
+
+This adds our local patched source directories to the Tutor so they will be 
+built into the images below.
 
 ```bash
-tutor mounts add ./backend
-tutor mounts list   # should show: openedx <= .../backend
+tutor mounts add ./backend  # the backend Django plugin from this repo
+tutor mounts add ../openedx-platform
+tutor mounts add ../frontend-app-authn
+tutor mounts add ../openedx-events
+tutor mounts list   
 ```
 
 ---
@@ -75,19 +87,11 @@ tutor images build mfe       # installs the npm package into the authn MFE
 tutor dev launch
 ```
 
----
-
-## 6. Run migrations
-
-```bash
-tutor dev run lms ./manage.py lms migrate registration_demographics
-tutor dev run lms ./manage.py lms showmigrations registration_demographics
-# Expected: [X] 0001_initial
-```
+`tutor dev launch` runs `init` internally, which applies all pending Django migrations including `registration_demographics`. No manual migration step is needed.
 
 ---
 
-## 7. Verify the frontend fields
+## 6. Verify the frontend fields
 
 1. Open `http://local.openedx.io/register` in a browser.
 2. Scroll down — a **Pronouns** text field and a **Department** dropdown should appear just above the Create Account button.
@@ -95,7 +99,7 @@ tutor dev run lms ./manage.py lms showmigrations registration_demographics
 
 ---
 
-## 8. Verify the filter rejects bad input
+## 7. Verify the filter rejects bad input
 
 Submit the registration form with **Department** set to anything not in `["eng", "ops", "edu"]` (or type it directly via curl):
 
@@ -109,7 +113,7 @@ Expected: HTTP 400 with `"error_code": "invalid_department"`.
 
 ---
 
-## 9. Verify the event fires
+## 8. Verify the event fires
 
 In a second terminal, tail LMS logs before registering:
 
@@ -121,7 +125,7 @@ Register a new user (via the form or curl) with a valid department. Look for a l
 
 ---
 
-## 10. Verify the REST API
+## 9. Verify the REST API
 
 ```bash
 # Get a JWT for the user you just registered (replace credentials)
@@ -146,7 +150,7 @@ Expected response:
 
 ---
 
-## 11. Verify the admin UI
+## 10. Verify the admin UI
 
 Log in as a superuser and open:
 
