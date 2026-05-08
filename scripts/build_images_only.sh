@@ -15,11 +15,13 @@ step() { echo; echo "═══════════════════�
 info() { echo "  → $*"; }
 die()  { echo; echo "ERROR: $*" >&2; exit 1; }
 
+tutor config save
+
 step "Building images"
 info "Building openedx image (this takes a while)..."
 tutor images build openedx-dev
 
-info "Building mfe image (will retry up to 5 times on failure)..."
+info "Building mfe images (will retry up to 5 times on failure)..."
 for attempt in 1 2 3 4 5; do
     tutor images build mfe-dev && break
     if [[ $attempt -eq 5 ]]; then
@@ -32,8 +34,9 @@ done
 info "Building authn dev image (core MFEs are not auto-built by tutor dev launch)..."
 tutor images build authn-dev
 
-info "Building permissions image..."
-tutor images build permissions
+# Only seems to be needed on verawood
+# info "Building permissions image..."
+# tutor images build permissions
 
 echo
 echo "✔  Build complete. The rest of setup should work now."

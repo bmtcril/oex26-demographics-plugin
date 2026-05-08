@@ -21,7 +21,6 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
 ]
 keywords = ["openedx", "django", "plugin", "extension-points", "workshop"]
 

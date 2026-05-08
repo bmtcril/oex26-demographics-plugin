@@ -67,6 +67,9 @@ plugin.
 
 ## Quick start
 
+> rm -rf .venv && uv venv -p 3.11 && uv pip install pip
+> ./scripts/setup_dev.sh --reset
+
 > **Prerequisites:** A working [Tutor](https://docs.tutor.edly.io/) dev
 > environment, with [`tutor-mfe`](https://github.com/overhangio/tutor-mfe)
 > installed.

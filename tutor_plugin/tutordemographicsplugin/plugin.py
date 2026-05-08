@@ -7,11 +7,8 @@ PyPI) into the LMS image and configures the frontend plugin component
 frontend-app-authn registration form slot.
 
 Requirements:
-    tutor>=17.0.0
+    tutor Verawood branch or release
     tutor-mfe (for frontend slot configuration — degrades gracefully if absent)
-
-Workshop §6 walks through this file section-by-section as the live-coding
-artifact for "Tutor wiring."
 """
 
 from tutor import hooks
@@ -71,12 +68,12 @@ if _tutormfe_available:
     # installation to frontend-app-authn only, but env.config.jsx is a single
     # shared file rendered for all MFEs. The buildtime import below must
     # resolve in every MFE's node_modules, so we install it globally.
-    hooks.Filters.ENV_PATCHES.add_item(
-        (
-            "mfe-dockerfile-post-npm-install",
-            "RUN npm install openedx-demographics-plugin",
-        )
-    )
+    # hooks.Filters.ENV_PATCHES.add_item(
+    #    (
+    #        "mfe-dockerfile-post-npm-install",
+    #        "RUN npm install 'openedx-demographics-plugin/@git+https://github.com/bmtcril/oex26-workshop.git/frontend'",
+    #    )
+    # )
 
     # Step 2: Import DemographicsFields in env.config.jsx so it is in scope
     # when the slot configuration is evaluated at runtime.

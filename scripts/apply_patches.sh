@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# scripts/apply_patches.sh
-#
+
 # Applies the upstream patches from upstream-patches/ to the sibling
 # repository checkouts expected one directory above this repo (as cloned
 # in E2E.md §1).
