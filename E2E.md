@@ -6,7 +6,7 @@ This guide gets you from a fresh clone to a working demographics feature in a Tu
 
 ## Prerequisites
 
-- Tutor ≥ 20 with a working `tutor dev` environment
+- Tutor (main) with a working `tutor dev` environment
 - [`tutor-mfe`](https://github.com/overhangio/tutor-mfe) installed and enabled
 
 ---

@@ -47,20 +47,20 @@ The running example lives in this repo. As facilitators, this is what's already 
 
 | Section | Code artefact                                                                                | Status |
 |---------|----------------------------------------------------------------------------------------------|--------|
-| §4      | `upstream-patches/frontend-app-authn.patch` — adds the slot + `slot.md` doc                  | ✅ drafted |
-| §4      | `frontend/` — npm package providing the `DemographicsFields` plugin component                | ✅ |
+| §4      | [`frontend-app-authn` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) — adds the slot + `slot.md` doc | ✅ |
+| §4      | `frontend/` — npm package providing the `DemographicsFields` plugin component (local build, no publish) | ✅ |
 | §5A     | `backend/src/registration_demographics/pipeline.py` — `ValidateDemographicsFields` step      | ✅ |
 | §5A     | `backend/src/registration_demographics/settings/common.py` — filter pipeline registration    | ✅ |
 | §5B     | `backend/src/registration_demographics/events.py` — `REGISTRATION_DEMOGRAPHICS_CAPTURED`     | ✅ |
 | §5B     | `backend/src/registration_demographics/signals.py` — idempotent receiver                     | ✅ |
-| §5B     | `upstream-patches/openedx-events.patch` — upstream signal definition                         | ✅ drafted |
-| §5B     | `upstream-patches/edx-platform.patch` — fires the signal from the LMS register view          | ✅ drafted |
+| §5B     | [`openedx-events` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) — upstream signal definition | ✅ |
+| §5B     | [`openedx-platform` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop) — fires the signal from the LMS register view | ✅ |
 | §6      | `backend/src/registration_demographics/apps.py` — Django plugin entry point                  | ✅ |
 | §6      | `backend/src/registration_demographics/{models,serializers,views,urls}.py` + migration       | ✅ |
 | §6      | `backend/tests/` — model, viewset, pipeline, signal, smoke tests                             | ✅ |
 | §6      | `tutor_plugin/tutordemographicsplugin/plugin.py` — Tutor plugin                              | ✅ |
-| —       | Top-level `README.md` (Quick Start, plugin types table, workshop ↔ code map)                 | ✅ Done |
-| —       | `E2E.md` — end-to-end smoke test commands                                                     | ✅ Done |
+| —       | Top-level `README.md` (Quick Start, plugin types table, workshop ↔ code map)                 | ✅ |
+| —       | `E2E.md` — end-to-end smoke test commands                                                     | ✅ |
 
 The `private/Demographic Plumbing Plugin Repository Architecture Plan.md` document captures the full build plan and the renumbered step ordering we're following.
 
@@ -88,8 +88,8 @@ This use case is compelling because:
 ### 1. Welcome & Orientation (5 min)
 
 - Introduce facilitators and their working-group affiliations.
-- Distribute handouts (with QR links to documentation — see [Handouts](#handouts) section below).
-- Confirm prerequisites: participants should have a Tutor dev environment running, or be prepared to follow along visually.
+- Distribute handouts (with QR links to documentation — see [Handouts](#handouts) section below) and connection info papers (SSH credentials and URLs for pre-built cloud servers).
+- Confirm participants can SSH into their assigned cloud server — no local Tutor setup required.
 - Set expectations: "We will build a working feature together, end-to-end."
 
 ### 2. Why Extension Points? (10 min)
@@ -166,7 +166,7 @@ Walk through the architecture diagram (whiteboard or slide):
    - Define a named slot — we use `org.openedx.frontend.authn.register.additional_fields.v1` (reverse-DNS, versioned). Walk through the naming convention; this is the form upstream reviewers will expect.
    - Place it in the JSX tree just above the submit button so plugins append fields rather than reorder the form's required ones.
    - Pass `formFields` and the form's change handler as `pluginProps` so the plugin component participates in the form's state machinery rather than maintaining shadow state.
-   - Show `upstream-patches/frontend-app-authn.patch` as the live reference: the diff against `RegistrationPage.jsx` plus the companion `RegisterAdditionalFieldsSlot/README.md` (the slot doc the Frontend WG expects on every new slot).
+   - Show the [`frontend-app-authn` workshop branch](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) as the live reference: the diff against `RegistrationPage.jsx` plus the companion `RegisterAdditionalFieldsSlot/README.md` (the slot doc the Frontend WG expects on every new slot).
 
 3. **Demonstrate the demographics plugin** rendering `pronouns` and `department` fields into the slot via the `frontend/` package's `DemographicsFields` component.
    - Show how a Tutor plugin injects the MFE plugin config so the slot is populated (forward-reference §6).
@@ -211,7 +211,7 @@ This is the meatiest section and follows a live-coding format.
    - Versioning the new signal independently (`...captured.v1`) means future field-shape changes don't bump the older event.
 3. **Define the event** in `backend/src/registration_demographics/events.py` — `RegistrationDemographicsData` (attrs class) + the `OpenEdxPublicSignal`. Frame this as the *staging ground* pattern (see §7 talking point): the definition lives in the plugin while the upstream PR is in flight.
 4. **Write an event receiver** in `backend/src/registration_demographics/signals.py` that persists the demographic data via `update_or_create` (idempotent — see talking point below).
-5. **Show the upstream patches** (`upstream-patches/openedx-events.patch`, `upstream-patches/edx-platform.patch`) as the eventual destination: define the signal in `openedx-events.learning`, fire it from the LMS register view. The plugin's local `events.py` keeps the same `event_type` string so receivers don't break when the import path migrates.
+5. **Show the upstream branches** ([`openedx-events`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop), [`openedx-platform`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop)) as the eventual destination: define the signal in `openedx-events.learning`, fire it from the LMS register view. The plugin's local `events.py` keeps the same `event_type` string so receivers don't break when the import path migrates.
 6. **Briefly mention** the event bus (Kafka/Redis) as a mechanism for pushing events to external systems — out of scope for hands-on today.
 
 **Talking point — filter vs. event, division of labour.** Show the demographics plugin's two halves side-by-side: the *filter* (`pipeline.py`) gates registration and validates input — it raises `PreventRegistration` and aborts. The *event* receiver (`signals.py`) records the fact that registration happened — it logs and recovers, never raising. Same domain, different transport, different failure semantics. The pithy version: "filters say *no*; events say *FYI*." Use this to help participants pick the right tool when they design their own extension points in §8.
@@ -242,7 +242,7 @@ This is the meatiest section and follows a live-coding format.
    - `MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))` so `tutor mounts add ./backend` works for dev.
    - `ENV_PATCHES["openedx-lms-dockerfile-post-python-requirements"]` — installs the plugin package into the LMS image only (not CMS, consistent with the `lms.djangoapp`-only entry point).
    - `CLI_DO_INIT_TASKS` — runs `./manage.py lms migrate registration_demographics` on init.
-   - `tutormfe`-conditional patches: `mfe-dockerfile-post-npm-install` to install the npm package, `mfe-env-config-buildtime-imports` to import `DemographicsFields`, and `PLUGIN_SLOTS.add_item(...)` to register it against `org.openedx.frontend.authn.register.additional_fields.v1`. The plugin degrades gracefully if `tutormfe` isn't installed.
+   - `tutormfe`-conditional patches: `mfe-dockerfile-post-npm-install` to build and install the frontend package locally (via `npm install` with a local path — no npm registry publish required), `mfe-env-config-buildtime-imports` to import `DemographicsFields`, and `PLUGIN_SLOTS.add_item(...)` to register it against `org.openedx.frontend.authn.register.additional_fields.v1`. The plugin degrades gracefully if `tutormfe` isn't installed.
    - Run through `tutor plugins install ./tutor` → `tutor plugins enable demographics_plugin` → `tutor dev launch`.
 
    **Talking point — LMS-only patch mirrors the LMS-only entry point.** The plugin uses `openedx-lms-dockerfile-post-python-requirements` rather than the shared `openedx-dockerfile-post-python-requirements`. This is the same scope decision made in `pyproject.toml` (`lms.djangoapp` only) now showing up again in the Tutor layer — the two reinforce each other. Ask participants: *what would break if we used the shared patch but kept the LMS-only entry point?* Answer: nothing at runtime, but CMS images would carry a package they never load, which wastes image size and creates a maintenance surface. The layers should stay consistent.
@@ -250,7 +250,7 @@ This is the meatiest section and follows a live-coding format.
    **Talking point — graceful degradation with `try/except ImportError`.** The `_tutormfe_available` guard at the top of `plugin.py` means the backend half of the plugin (filter, event, model, API) works on any deployment, even one that hasn't migrated to MFEs. Operators who are still on the legacy registration page simply don't get the frontend fields — they can collect demographics via the REST API by other means. This pattern is worth generalising: always ask "what does my plugin do if its optional dependencies aren't present?" and design the guard before writing the conditional code.
 
    **Talking point — three steps to wire a frontend plugin, and why each is necessary.**
-   - *Step 1 (`mfe-dockerfile-post-npm-install`)* — bakes the npm package into the MFE Docker image at build time. Without this the import in step 2 fails at container start.
+   - *Step 1 (`mfe-dockerfile-post-npm-install`)* — builds the local npm package and installs it into the MFE Docker image at build time (using a local path, as a developer would). Without this the import in step 2 fails at container start.
    - *Step 2 (`mfe-env-config-buildtime-imports`)* — adds the `import` statement to `env.config.jsx`. The plugin slot config in step 3 references `DemographicsFields` by name; it must be in scope in that file or the MFE throws a ReferenceError.
    - *Step 3 (`PLUGIN_SLOTS.add_item(...)`)* — registers the component against the slot ID at runtime. Steps 1 and 2 together just make the code available; this step actually connects it to the UI.
    The order matters and each step is load-bearing. A common mistake is to do step 3 and forget step 1 or 2, which produces a confusing ReferenceError with no obvious link to the missing install.
@@ -276,11 +276,11 @@ This is the meatiest section and follows a live-coding format.
 - **Step 4: Open a PR** with tests, documentation, and an ADR if the change warrants it.
 - **Step 5: Be responsive.** Reviews go faster when you respond to feedback promptly.
 
-**Talking point — the "staging ground" pattern for new extension points.** Defining a brand-new event or filter upstream first, then writing a plugin against it, is a common rookie mistake — you end up with a half-designed API blocked on review. The pragmatic path is the opposite: define the event/filter *inside your plugin* (see `backend/src/registration_demographics/events.py`), get a receiver and tests working, run it in production for a release or two, then propose moving the *stabilised* definition upstream. Pin the `event_type` / `filter_type` string from day one so receivers don't break when the import path changes. The `upstream-patches/` directory shows what those eventual upstream PRs look like, with commit messages written *as* the PR descriptions:
+**Talking point — the "staging ground" pattern for new extension points.** Defining a brand-new event or filter upstream first, then writing a plugin against it, is a common rookie mistake — you end up with a half-designed API blocked on review. The pragmatic path is the opposite: define the event/filter *inside your plugin* (see `backend/src/registration_demographics/events.py`), get a receiver and tests working, run it in production for a release or two, then propose moving the *stabilised* definition upstream. Pin the `event_type` / `filter_type` string from day one so receivers don't break when the import path changes. The workshop branches show what those eventual upstream PRs look like, with commit messages written *as* the PR descriptions:
 
-- `openedx-events.patch` — defines `RegistrationDemographicsData` + `REGISTRATION_DEMOGRAPHICS_CAPTURED` in `openedx_events.learning`. Note the commit message argues for a *new* event vs. extending an existing one — that argument is the PR.
-- `edx-platform.patch` — fires the new signal from the LMS `create_account_with_params` view. Note the explicit choice to read from `request.POST` rather than the Django form (a deployment-optionality argument).
-- `frontend-app-authn.patch` — adds the slot to `RegistrationPage`, plus the `slot.md` doc the Frontend WG expects on every new slot.
+- [`openedx-events` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) — defines `RegistrationDemographicsData` + `REGISTRATION_DEMOGRAPHICS_CAPTURED` in `openedx_events.learning`. Note the commit message argues for a *new* event vs. extending an existing one — that argument is the PR.
+- [`openedx-platform` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop) — fires the new signal from the LMS `create_account_with_params` view. Note the explicit choice to read from `request.POST` rather than the Django form (a deployment-optionality argument).
+- [`frontend-app-authn` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) — adds the slot to `RegistrationPage`, plus the `slot.md` doc the Frontend WG expects on every new slot.
 
 These are the artefacts you'd send upstream once the plugin has soaked in production. **They're also the artefacts to read *before* writing the plugin** — the commit messages are a working template for writing your own upstream PR descriptions.
 
@@ -345,22 +345,24 @@ The handout should also include:
 ### For facilitators
 
 - [x] Backend Django plugin built (`backend/`): model + migration, REST API, filter pipeline step, event + receiver, settings wiring, tests.
-- [x] Upstream patches drafted (`upstream-patches/`): `openedx-events.patch`, `edx-platform.patch`, `frontend-app-authn.patch`.
-- [ ] Frontend npm package (`frontend/`) — `DemographicsFields` plugin component + `package.json` matching the sample plugin's shape.
-- [ ] Tutor plugin (`tutor/tutordemographicsplugin/plugin.py`) — mounts, env patches, init tasks, MFE slot wiring.
+- [x] Upstream branches prepared: [`openedx-events`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop), [`openedx-platform`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop), [`frontend-app-authn`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop).
+- [ ] Frontend npm package (`frontend/`) — `DemographicsFields` plugin component + `package.json`; use local build (no npm publish).
+- [ ] Tutor plugin (`tutor/tutordemographicsplugin/plugin.py`) — mounts, env patches, init tasks, MFE slot wiring via local npm install.
 - [ ] Top-level `README.md` and `docs/E2E.md` (or README section) with the end-to-end smoke-test commands.
-- [ ] Prepare a "finished" branch for participants who fall behind during the lab.
-- [ ] Test the full flow end-to-end on a clean Tutor dev environment.
+- [ ] Provision and test cloud servers; prepare connection info papers (one per participant with SSH credentials and URLs).
+- [ ] Test the full flow end-to-end on the cloud servers using the workshop branches.
 - [ ] Prepare slides for Sections 2 and 3 (can be minimal — diagrams and bullet points).
-- [ ] Print handouts.
+- [ ] Print handouts and connection info papers.
 - [ ] Coordinate with working group leads who will be present for the brainstorm and lab portions.
 
 ### For participants (communicate in advance)
 
-- [ ] Have a working Tutor dev environment (`tutor dev launch` completes successfully), **or** be prepared to follow along visually and implement later.
+- [ ] Bring your own laptop (any OS — you only need SSH and a terminal).
 - [ ] Clone the workshop repository.
 - [ ] Familiarity with Python and basic Django concepts.
 - [ ] Familiarity with JavaScript/React is helpful for the frontend section.
+
+> **Note:** Pre-built cloud servers will be provided. Connection info (SSH credentials and URLs) will be distributed on paper at the start of the workshop — no local Tutor setup required.
 
 ---
 

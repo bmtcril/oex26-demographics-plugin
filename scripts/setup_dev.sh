@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Builds a clean, isolated Tutor dev environment for the OEX 2026 workshop.
-# Covers E2E.md steps 3–5 (assumes step 1 "clone" and step 2 "patch" are done).
+# Covers E2E.md steps 3–5 (assumes step 1 "clone" and step 2 "branch checkout" are done).
 #
 # Usage (from repo root):
 #   bash scripts/setup_dev.sh           # idempotent: skips destructive steps
@@ -22,6 +22,8 @@ OPENEDX_PLATFORM="$PARENT/openedx-platform"
 FRONTEND_AUTHN="$PARENT/frontend-app-authn"
 OPENEDX_EVENTS="$PARENT/openedx-events"
 
+WORKSHOP_BRANCH="bmtcril/oex26_conference_workshop"
+
 RESET=false
 if [[ "${1:-}" == "--reset" ]]; then
     RESET=true
@@ -38,12 +40,18 @@ die()  { echo; echo "ERROR: $*" >&2; exit 1; }
 step "Pre-flight checks"
 
 for repo_path in "$OPENEDX_PLATFORM" "$FRONTEND_AUTHN" "$OPENEDX_EVENTS"; do
+    repo_name="$(basename "$repo_path")"
     if [[ ! -d "$repo_path/.git" ]]; then
         die "Expected repo not found: $repo_path
-  Clone it and apply the upstream patch before running this script.
+  Clone it and check out the workshop branch before running this script.
   See E2E.md §1–2 for instructions."
     fi
-    info "Found $(basename "$repo_path") at $repo_path"
+    current_branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "(unknown)")"
+    if [[ "$current_branch" != "$WORKSHOP_BRANCH" ]]; then
+        die "$repo_name is on branch '$current_branch', expected '$WORKSHOP_BRANCH'.
+  Run: git -C $repo_path checkout $WORKSHOP_BRANCH"
+    fi
+    info "Found $repo_name @ $WORKSHOP_BRANCH"
 done
 
 PYTHON_BIN="$VENV/bin/python"
