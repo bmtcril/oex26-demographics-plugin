@@ -8,8 +8,8 @@ Wires the LMS registration view to emit the new
 openedx-events #NNNN) immediately after a successful registration.
 
 The two new fields, ``pronouns`` and ``department``, are read directly
-out of ``request.POST`` rather than added to the ``RegistrationForm``
-itself. That choice is deliberate:
+out of ``params`` (which mirrors ``request.POST``) rather than added to
+the ``RegistrationForm`` itself. That choice is deliberate:
 
 * The fields are *optional everywhere*. Adding them to the Django form
   would require every deployment — including those not running the
@@ -37,36 +37,32 @@ Reference: OEX 2026 workshop "Leveraging Open edX Extension Points",
 Section 5B.
 
 ---
- .../user_authn/views/register.py | 28 ++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+ openedx/core/djangoapps/user_authn/views/register.py | 23 +++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/openedx/core/djangoapps/user_authn/views/register.py b/openedx/core/djangoapps/user_authn/views/register.py
 --- a/openedx/core/djangoapps/user_authn/views/register.py
 +++ b/openedx/core/djangoapps/user_authn/views/register.py
-@@ -42,7 +42,11 @@ from openedx_events.learning.data import UserData, UserPersonalData
+@@ -28,6 +28,9 @@ from edx_django_utils.monitoring import set_custom_attribute
+ from edx_django_utils.user import generate_password  # pylint: disable=wrong-import-order
+-from openedx_events.learning.data import UserData, UserPersonalData
 -from openedx_events.learning.signals import STUDENT_REGISTRATION_COMPLETED
++from openedx_events.learning.data import RegistrationDemographicsData, UserData, UserPersonalData
 +from openedx_events.learning.signals import (
 +    REGISTRATION_DEMOGRAPHICS_CAPTURED,
 +    STUDENT_REGISTRATION_COMPLETED,
 +)
-+from openedx_events.learning.data import RegistrationDemographicsData
-
- log = logging.getLogger("edx.student")
-
-@@ -380,6 +384,26 @@ def create_account_with_params(request, params):
-             email=user.email,
+ from openedx_filters.learning.filters import StudentRegistrationRequested
+ from requests import HTTPError
+ from rest_framework.response import Response
+@@ -273,8 +276,28 @@ def create_account_with_params(request, params):
+             id=user.id,
+             is_active=user.is_active,
          ),
      )
 +
-+    # ------------------------------------------------------------------
-+    # Optional demographic fields collected by the authn-form plugin slot
-+    # ``org.openedx.frontend.authn.register.additional_fields.v1``.
-+    #
-+    # We read directly from request.POST rather than from the
-+    # RegistrationForm because these fields are deployment-optional and
-+    # we don't want every site to carry them on the form definition.
-+    # See the discussion on the originating PR for the rationale.
-+    # ------------------------------------------------------------------
++    # .. event_implemented_name: REGISTRATION_DEMOGRAPHICS_CAPTURED
++    # .. event_type: org.openedx.learning.student.registration.demographics.captured.v1
 +    pronouns = (params.get("pronouns") or "").strip()
 +    department = (params.get("department") or "").strip()
 +    REGISTRATION_DEMOGRAPHICS_CAPTURED.send_event(
@@ -77,6 +73,7 @@ diff --git a/openedx/core/djangoapps/user_authn/views/register.py b/openedx/core
 +                pii=UserPersonalData(
 +                    username=user.username,
 +                    email=user.email,
++                    name=user.profile.name,
 +                ),
 +            ),
 +            pronouns=pronouns,
@@ -84,6 +81,8 @@ diff --git a/openedx/core/djangoapps/user_authn/views/register.py b/openedx/core
 +        ),
 +    )
 
-     return new_user
+     create_comments_service_user(user)
+
+     try:
 --
 2.45.0

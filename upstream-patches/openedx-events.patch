@@ -32,19 +32,18 @@ Points" running example — this event is the one its registration
 demographics plugin subscribes to.
 
 ---
- openedx_events/learning/data.py    | 22 ++++++++++++++++++++++
- openedx_events/learning/signals.py | 12 ++++++++++++
- docs/decisions/0017-events.rst     |  6 ++++++
- 3 files changed, 40 insertions(+)
+ openedx_events/learning/data.py    | 26 ++++++++++++++++++++++++++
+ openedx_events/learning/signals.py | 15 +++++++++++++++
+ 2 files changed, 41 insertions(+)
 
 diff --git a/openedx_events/learning/data.py b/openedx_events/learning/data.py
 --- a/openedx_events/learning/data.py
 +++ b/openedx_events/learning/data.py
-@@ -120,3 +120,25 @@ class CourseEnrollmentData:
-     mode = attr.ib(type=str)
-     is_active = attr.ib(type=bool)
-     creation_date = attr.ib(type=datetime)
-     created_by = attr.ib(type=UserData, default=None)
+@@ -692,4 +692,30 @@ class LtiProviderLaunchData:
+     user = attr.ib(type=UserData)
+     course_key = attr.ib(type=CourseKey)
+     usage_key = attr.ib(type=UsageKey)
+     launch_params = attr.ib(type=LtiProviderLaunchParamsData)
 +
 +
 +@attr.s(frozen=True)
@@ -74,18 +73,26 @@ diff --git a/openedx_events/learning/data.py b/openedx_events/learning/data.py
 diff --git a/openedx_events/learning/signals.py b/openedx_events/learning/signals.py
 --- a/openedx_events/learning/signals.py
 +++ b/openedx_events/learning/signals.py
-@@ -18,6 +18,7 @@ from openedx_events.learning.data import (
-     CertificateData,
-     CourseEnrollmentData,
-     CourseDiscussionConfigurationData,
+@@ -24,6 +24,7 @@ from openedx_events.learning.data import (
+     ORASubmissionData,
+     PersistentCourseGradeData,
+     ProgramCertificateData,
 +    RegistrationDemographicsData,
      UserData,
- )
- from openedx_events.tooling import OpenEdxPublicSignal
-@@ -55,3 +56,14 @@ STUDENT_REGISTRATION_COMPLETED = OpenEdxPublicSignal(
-         "user": UserData,
+     UserNotificationData,
+     VerificationAttemptData,
+@@ -510,10 +511,23 @@ EXTERNAL_GRADER_SCORE_SUBMITTED = OpenEdxPublicSignal(
+ # .. event_type: org.openedx.learning.lti_provider.launch.success.v1
+ # .. event_name: LTI_PROVIDER_LAUNCH_SUCCESS
+ # .. event_description: emitted when a student accesses learning content via LTI
+ # .. event_data: LtiProviderLaunchData
+ LTI_PROVIDER_LAUNCH_SUCCESS = OpenEdxPublicSignal(
+     event_type="org.openedx.learning.lti_provider.launch.success.v1",
+     data={
+         "launch_data": LtiProviderLaunchData,
      }
  )
++
 +
 +# .. event_type: org.openedx.learning.student.registration.demographics.captured.v1
 +# .. event_name: REGISTRATION_DEMOGRAPHICS_CAPTURED
@@ -98,18 +105,5 @@ diff --git a/openedx_events/learning/signals.py b/openedx_events/learning/signal
 +        "demographics": RegistrationDemographicsData,
 +    }
 +)
-diff --git a/docs/decisions/0017-events.rst b/docs/decisions/0017-events.rst
---- a/docs/decisions/0017-events.rst
-+++ b/docs/decisions/0017-events.rst
-@@ -42,3 +42,9 @@ Existing events
- * ``CERTIFICATE_REVOKED``
- * ``COURSE_DISCUSSIONS_CHANGED``
- * ``STUDENT_REGISTRATION_COMPLETED``
-+* ``REGISTRATION_DEMOGRAPHICS_CAPTURED`` — fired after a successful
-+  registration when the deployment has enabled the
-+  ``org.openedx.frontend.authn.register.additional_fields.v1`` plugin
-+  slot and the learner has supplied any of the optional demographic
-+  fields. Receivers should treat individual fields as opt-in: empty
-+  strings indicate the learner declined to provide that field.
 --
 2.45.0

@@ -19,7 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 keywords = ["tutor", "openedx", "plugin", "demographics", "workshop"]
-dependencies = ["tutor @ git+https://github.com/overhangio/tutor.git@verawood", "tutor-mfe @ git+https://github.com/overhangio/tutor-mfe.git@verawood"]
+dependencies = ["tutor @ git+https://github.com/overhangio/tutor.git@main", "tutor-mfe @ git+https://github.com/overhangio/tutor-mfe.git@main"]
 dynamic = ["readme", "version"]
 
 [project.entry-points."tutor.plugin.v1"]

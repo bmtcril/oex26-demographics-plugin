@@ -48,20 +48,17 @@ done
 
 PYTHON_BIN="$VENV/bin/python"
 if [[ ! -x "$PYTHON_BIN" ]]; then
-    die "No virtual environment found at $VENV
-  Create one with Python 3.12 and retry:
-    python3.12 -m venv .venv"
+    info "No virtual environment found at $VENV ... recreating."
+    uv venv -p 3.12
 fi
 PYTHON_VERSION="$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
 if [[ "$PYTHON_VERSION" != "3.12" ]]; then
-    die "Virtual environment at $VENV is Python $PYTHON_VERSION, need 3.12.
-  Recreate it with Python 3.12:
-    rm -rf .venv && python3.12 -m venv .venv"
+    info "Virtual environment at $VENV is Python $PYTHON_VERSION, recreating at 3.12."
+    rm -rf .venv
+    uv venv -p 3.12
 fi
 # shellcheck disable=SC1091
 source "$VENV/bin/activate"
-python -m pip --version >/dev/null 2>&1 || die "pip not found in $VENV. Re-create the venv:
-    rm -rf .venv && python3.12 -m venv .venv && python -m ensurepip"
 info "Activated: $(python --version) at $(which python)"
 
 info "TUTOR_ROOT=$TUTOR_ROOT"
@@ -90,8 +87,9 @@ fi
 
 if [[ "$RESET" == true ]]; then
     step "E2E §3 — Installing Tutor, tutor-mfe, and the demographics plugin  [--reset]"
-    pip install tutor tutor-mfe
-    pip install -e "$REPO_ROOT/tutor_plugin"
+    # This pulls in the correct version of tutor and tutor-mfe, don't manage
+    # them here.
+    uv pip install -e "$REPO_ROOT/tutor_plugin"
 
     info "Enabling plugins..."
     tutor plugins enable mfe
@@ -114,25 +112,6 @@ tutor mounts list
 
 # ── E2E §5 — Build images and launch ─────────────────────────────────────────
 
-step "E2E §5 — Building images"
-info "Building openedx image (this takes a while)..."
-tutor images build openedx-dev
-
-info "Building mfe image (will retry up to 5 times on failure)..."
-for attempt in 1 2 3 4 5; do
-    tutor images build mfe-dev && break
-    if [[ $attempt -eq 5 ]]; then
-        die "mfe-dev image build failed after 5 attempts."
-    fi
-    info "Attempt $attempt failed — retrying in 10 seconds..."
-    sleep 10
-done
-
-info "Building authn dev image (core MFEs are not auto-built by tutor dev launch)..."
-tutor images build authn-dev
-
-info "Building permissions image..."
-tutor images build permissions
 
 step "E2E §5 — Launching tutor dev"
 info "Running 'tutor dev launch' — migrations run automatically during init."
