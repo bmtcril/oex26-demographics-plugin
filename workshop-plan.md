@@ -32,12 +32,12 @@ By the end of this workshop, participants will be able to:
 | 0:05–0:15   | 10 min   | **Why extension points?** — philosophy & when to extend    |
 | 0:15–0:25   | 10 min   | **Anatomy of extension points** — the four layers          |
 | 0:25–0:35   | 10 min   | **Frontend: adding a plugin slot** — walkthrough           |
-| 0:35–0:55   | 20 min   | **Backend: filters & events** — live coding walkthrough    |
-| 0:55–1:00   | 5 min    | **Break**                                                  |
-| 1:00–1:10   | 10 min   | **Django plugins & Tutor wiring** — bringing it all together |
-| 1:10–1:15   | 5 min    | **Getting it merged** — contribution process & contacts    |
-| 1:15–1:30   | 15 min   | **Brainstorm session** — groups identify their own extension points |
-| 1:30–2:00   | 30 min   | **Implementation lab** — hands-on time with facilitator help |
+| 0:35–1:05   | 30 min   | **Backend: filters, events & Django plugin** — live coding walkthrough |
+| 1:05–1:10   | 5 min    | **Break**                                                  |
+| 1:10–1:20   | 10 min   | **Tutor wiring** — bringing it all together                |
+| 1:20–1:25   | 5 min    | **Getting it merged** — contribution process & contacts    |
+| 1:25–1:40   | 15 min   | **Brainstorm session** — groups identify their own extension points |
+| 1:40–2:00   | 20 min   | **Implementation lab** — hands-on time with facilitator help |
 
 ---
 
@@ -126,12 +126,12 @@ Walk through the architecture diagram (whiteboard or slide):
 │  └─────────────────────────────────────┘  │
 │               ▼ API call                  │
 ├───────────────────────────────────────────┤
-│  Backend (openedx-platform)               │
-│  ┌───────────────┐  ┌─────────────────┐  │
+│  Platform Extension Points                │
+│  ┌────────────────┐  ┌─────────────────┐  │
 │  │ openedx-filter │  │ openedx-event   │  │
 │  │ (validate &    │  │ (emit after     │  │
 │  │  transform)    │  │  registration)  │  │
-│  └───────────────┘  └─────────────────┘  │
+│  └────────────────┘  └─────────────────┘  │
 │               ▼ Django plugin             │
 ├───────────────────────────────────────────┤
 │  Plugin (pip-installable Django app)      │
@@ -140,8 +140,8 @@ Walk through the architecture diagram (whiteboard or slide):
 │  └─────────────────────────────────────┘  │
 │               ▼ event bus / tracking      │
 ├───────────────────────────────────────────┤
-│  Reporting (Aspects)                      │
-│  xAPI statements, dashboards              │
+│  Reporting (Aspects, etc.)                │
+│  Tracking, xAPI statements, dashboards    │
 └───────────────────────────────────────────┘
 ```
 
@@ -178,9 +178,9 @@ Walk through the architecture diagram (whiteboard or slide):
 - React Query makes it easier to plug into existing API calls from a plugin (e.g., pulling extra data into the registration context).
 - Prefer pushing complexity into the plugin over complicating the platform.
 
-### 5. Backend: Filters & Events (20 min)
+### 5. Backend: Filters, Events & Django Plugin (30 min)
 
-> **Goal:** Add a new `openedx-filters` filter to the registration flow and extend an `openedx-events` event with demographic data.
+> **Goal:** Add a new `openedx-filters` filter to the registration flow, extend an `openedx-events` event with demographic data, and wire it all into a pip-installable Django plugin.
 
 This is the meatiest section and follows a live-coding format.
 
@@ -218,11 +218,11 @@ This is the meatiest section and follows a live-coding format.
 
 **Talking point — design receivers to be idempotent from day one.** The demographics receiver uses `update_or_create` rather than `create`, even though today the event fires exactly once per registration. The reason is forward-compatibility: once the event bus is wired up, exactly-once delivery is hard, and idempotent receivers turn event-bus migration into a no-code change for downstream consumers. Show `signals.py` as the pattern.
 
-### 6. Django Plugins & Tutor Wiring (10 min)
+#### Part C: Django plugin structure (10 min)
 
-> **Goal:** Show how the pieces come together in a pip-installable Django plugin managed via Tutor.
+**Context:** The filter and event receivers we just wrote need a home — a pip-installable Django app that the platform loads via entry points.
 
-1. **Django plugin structure** (walk through `backend/`):
+1. **Walk through `backend/`:**
    - `pyproject.toml` entry point — `lms.djangoapp` only. Worth saying *why*: registration is LMS-side, the demographics REST API is consumed by the authn MFE, and there's no Studio surface. Compare with `sample-plugin` which registers under both `lms.djangoapp` and `cms.djangoapp` because its course-archive feature is meaningful in both. **The right entry-point set is a design decision, not boilerplate.**
    - Settings-based plugin registration via `apps.py`'s `plugin_app = {...}` and `settings/{common,production,test}.py`.
    - Adding new models, migrations, and API endpoints — point to `models.py`, `views.py`, `serializers.py`, `urls.py`, and the committed migration.
@@ -238,7 +238,11 @@ This is the meatiest section and follows a live-coding format.
    `permission_classes` (intentional, plugin-specific) but leaves auth
    to the platform.
 
-2. **Tutor integration** (walk through `tutor/tutordemographicsplugin/plugin.py`):
+### 6. Tutor Wiring (10 min)
+
+> **Goal:** Show how the Django plugin (and the frontend component) get installed and configured via a Tutor plugin.
+
+1. **Tutor integration** (walk through `tutor/tutordemographicsplugin/plugin.py`):
    - `MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))` so `tutor mounts add ./backend` works for dev.
    - `ENV_PATCHES["openedx-lms-dockerfile-post-python-requirements"]` — installs the plugin package into the LMS image only (not CMS, consistent with the `lms.djangoapp`-only entry point).
    - `CLI_DO_INIT_TASKS` — runs `./manage.py lms migrate registration_demographics` on init.
