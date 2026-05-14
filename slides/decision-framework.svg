@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#0f172a"/>
+
+  <!-- Title -->
+  <text x="640" y="72" text-anchor="middle" font-size="36" font-weight="700" fill="#f8fafc" letter-spacing="-0.5">Where does my extension point go?</text>
+
+  <!-- Column headers -->
+  <rect x="60" y="100" width="620" height="44" rx="6" fill="#1e3a5f"/>
+  <rect x="696" y="100" width="524" height="44" rx="6" fill="#1e3a5f"/>
+  <text x="370" y="128" text-anchor="middle" font-size="18" font-weight="600" fill="#93c5fd">I need to…</text>
+  <text x="958" y="128" text-anchor="middle" font-size="18" font-weight="600" fill="#93c5fd">Extension mechanism</text>
+
+  <!-- Row data: [need, mechanism, accent color for pill] -->
+  <!-- Row 1 -->
+  <rect x="60" y="156" width="620" height="68" rx="6" fill="#1e293b"/>
+  <text x="92" y="197" font-size="19" fill="#e2e8f0">Add or modify UI in an MFE</text>
+  <rect x="696" y="156" width="524" height="68" rx="6" fill="#1e293b"/>
+  <rect x="716" y="170" width="230" height="38" rx="19" fill="#1d4ed8"/>
+  <text x="831" y="195" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Frontend plugin slot</text>
+
+  <!-- Row 2 -->
+  <rect x="60" y="232" width="620" height="68" rx="6" fill="#172033"/>
+  <text x="92" y="273" font-size="19" fill="#e2e8f0">Intercept / modify a backend process in-flight</text>
+  <rect x="696" y="232" width="524" height="68" rx="6" fill="#172033"/>
+  <rect x="716" y="246" width="210" height="38" rx="19" fill="#7c3aed"/>
+  <text x="821" y="271" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">openedx-filters</text>
+
+  <!-- Row 3 -->
+  <rect x="60" y="308" width="620" height="68" rx="6" fill="#1e293b"/>
+  <text x="92" y="349" font-size="19" fill="#e2e8f0">React to something that happened</text>
+  <rect x="696" y="308" width="524" height="68" rx="6" fill="#1e293b"/>
+  <rect x="716" y="322" width="210" height="38" rx="19" fill="#7c3aed"/>
+  <text x="821" y="347" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">openedx-events</text>
+
+  <!-- Row 4 -->
+  <rect x="60" y="384" width="620" height="68" rx="6" fill="#172033"/>
+  <text x="92" y="425" font-size="19" fill="#e2e8f0">Emit data to external systems</text>
+  <rect x="696" y="384" width="524" height="68" rx="6" fill="#172033"/>
+  <rect x="716" y="398" width="282" height="38" rx="19" fill="#0f766e"/>
+  <text x="857" y="423" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Event bus → message broker</text>
+
+  <!-- Row 5 -->
+  <rect x="60" y="460" width="620" height="68" rx="6" fill="#1e293b"/>
+  <text x="92" y="501" font-size="19" fill="#e2e8f0">Store new data, add new APIs</text>
+  <rect x="696" y="460" width="524" height="68" rx="6" fill="#1e293b"/>
+  <rect x="716" y="474" width="272" height="38" rx="19" fill="#b45309"/>
+  <text x="852" y="499" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Django plugin (entry points)</text>
+
+  <!-- Row 6 -->
+  <rect x="60" y="536" width="620" height="68" rx="6" fill="#172033"/>
+  <text x="92" y="577" font-size="19" fill="#e2e8f0">Customize Tutor build / config</text>
+  <rect x="696" y="536" width="524" height="68" rx="6" fill="#172033"/>
+  <rect x="716" y="550" width="180" height="38" rx="19" fill="#15803d"/>
+  <text x="806" y="575" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Tutor plugin</text>
+
+  <!-- Row 7 -->
+  <rect x="60" y="612" width="620" height="68" rx="6" fill="#1e293b"/>
+  <text x="92" y="653" font-size="19" fill="#e2e8f0">Report on data in dashboards</text>
+  <rect x="696" y="612" width="524" height="68" rx="6" fill="#1e293b"/>
+  <rect x="716" y="626" width="272" height="38" rx="19" fill="#be123c"/>
+  <text x="852" y="651" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Aspects / xAPI extensions</text>
+
+  <!-- Divider between columns -->
+  <line x1="688" y1="100" x2="688" y2="680" stroke="#334155" stroke-width="2"/>
+</svg>

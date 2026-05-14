@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#0f172a"/>
+
+  <!-- Title -->
+  <text x="640" y="58" text-anchor="middle" font-size="34" font-weight="700" fill="#f8fafc" letter-spacing="-0.5">Extension Point Architecture</text>
+
+  <!-- ── Layer 1: Frontend ── -->
+  <rect x="200" y="80" width="880" height="130" rx="10" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="240" y="112" font-size="20" font-weight="700" fill="#93c5fd">Frontend (MFE)</text>
+  <!-- inner box -->
+  <rect x="340" y="122" width="600" height="52" rx="7" fill="#1d4ed8"/>
+  <text x="640" y="153" text-anchor="middle" font-size="18" font-weight="600" fill="#ffffff">Plugin Slot: &lt;AdditionalRegInfo /&gt;</text>
+
+  <!-- Arrow: API call -->
+  <line x1="640" y1="210" x2="640" y2="248" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <polygon points="640,256 634,244 646,244" fill="#64748b"/>
+  <text x="660" y="236" font-size="15" fill="#94a3b8">API call</text>
+
+  <!-- ── Layer 2: Backend ── -->
+  <rect x="200" y="258" width="880" height="150" rx="10" fill="#2d1f4e" stroke="#7c3aed" stroke-width="2"/>
+  <text x="240" y="291" font-size="20" font-weight="700" fill="#c4b5fd">Platform Extension Points</text>
+  <!-- filter box -->
+  <rect x="270" y="302" width="340" height="80" rx="7" fill="#5b21b6"/>
+  <text x="440" y="334" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">openedx-filters</text>
+  <text x="440" y="358" text-anchor="middle" font-size="14" fill="#ddd6fe">(validate &amp; transform)</text>
+  <!-- event box -->
+  <rect x="670" y="302" width="340" height="80" rx="7" fill="#5b21b6"/>
+  <text x="840" y="334" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">openedx-events</text>
+  <text x="840" y="358" text-anchor="middle" font-size="14" fill="#ddd6fe">(emit after registration)</text>
+
+  <!-- Arrow: Django plugin -->
+  <line x1="640" y1="408" x2="640" y2="446" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <polygon points="640,454 634,442 646,442" fill="#64748b"/>
+  <text x="660" y="434" font-size="15" fill="#94a3b8">Django plugin</text>
+
+  <!-- ── Layer 3: Plugin ── -->
+  <rect x="200" y="456" width="880" height="110" rx="10" fill="#1c2d1f" stroke="#15803d" stroke-width="2"/>
+  <text x="240" y="488" font-size="20" font-weight="700" fill="#86efac">Plugin (pip-installable Django app)</text>
+  <!-- inner box -->
+  <rect x="340" y="498" width="600" height="44" rx="7" fill="#15803d"/>
+  <text x="640" y="526" text-anchor="middle" font-size="17" font-weight="600" fill="#ffffff">Models, receivers, API endpoints</text>
+
+  <!-- Arrow: event bus / tracking -->
+  <line x1="640" y1="566" x2="640" y2="604" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <polygon points="640,612 634,600 646,600" fill="#64748b"/>
+  <text x="660" y="592" font-size="15" fill="#94a3b8">event bus / tracking</text>
+
+  <!-- ── Layer 4: Reporting ── -->
+  <rect x="200" y="614" width="880" height="88" rx="10" fill="#2d1220" stroke="#be123c" stroke-width="2"/>
+  <text x="240" y="648" font-size="20" font-weight="700" fill="#fca5a5">Reporting (Aspects, etc.)</text>
+  <text x="240" y="678" font-size="16" fill="#fda4af">Tracking, xAPI statements, dashboards</text>
+</svg>

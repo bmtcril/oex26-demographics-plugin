@@ -39,12 +39,12 @@ hooks.Filters.MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))
 #
 # Workshop talking point: compare with sample-plugin which uses the same
 # patch for both LMS and CMS. The right scope is a design decision.
-hooks.Filters.ENV_PATCHES.add_item(
-    (
-        "openedx-lms-dockerfile-post-python-requirements",
-        "RUN pip install openedx-registration-demographics-plugin",
-    )
-)
+# hooks.Filters.ENV_PATCHES.add_item(
+#    (
+#        "openedx-lms-dockerfile-post-python-requirements",
+#        'RUN pip install "openedx-registration-demographics-plugin @ git+https://github.com/bmtcril/oex26-demographics-plugin#subdirectory=backend"',
+#    )
+# )
 
 # ---------------------------------------------------------------------------
 # Custom setup step, we don't need to do anything special on init but this is

@@ -6,47 +6,42 @@ This guide gets you from a fresh clone to a working demographics feature in a Tu
 
 ## Prerequisites
 
-- Tutor ≥ 20 with a working `tutor dev` environment
-- [`tutor-mfe`](https://github.com/overhangio/tutor-mfe) installed and enabled
+- A Python 3.12 virtual environment activated
 
 ---
 
 ## 1. Clone and position
 
+Clone all four repos as siblings, using the workshop branch for the three upstream repos:
+
 ```bash
-git clone https://github.com/openedx/openedx-platform.git
-git clone https://github.com/openedx/frontend-app-authn.git
-git clone https://github.com/openedx/openedx-events.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/openedx-platform.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/frontend-app-authn.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/openedx-events.git
 git clone https://github.com/bmtcril/oex26-demographics-plugin.git
 cd oex26-demographics-plugin
 ```
 
 ---
 
-## 2. Apply the upstream patches
+## 2. Workshop branches — what each one adds
 
-The plugin's filter step, event receiver, and REST API all work without the patches. The patches add two things that aren't in mainline yet:
+The plugin's filter step, event receiver, and REST API all work without the upstream changes. The workshop branches add things that aren't in mainline yet:
 
-| Patch | What it adds | Without it |
-|-------|--------------|------------|
-| `openedx-events.patch` | `REGISTRATION_DEMOGRAPHICS_CAPTURED` signal definition | Receiver logs a warning and is a no-op |
-| `edx-platform.patch` | Fires that event after successful registration | Event never fires |
-| `frontend-app-authn.patch` | Plugin slot in the registration form | Demographics fields don't appear in the MFE |
+| Branch | What it adds | Without it |
+|--------|--------------|------------|
+| `openedx-events` @ `bmtcril/oex26_conference_workshop` | `REGISTRATION_DEMOGRAPHICS_CAPTURED` signal definition | Receiver logs a warning and is a no-op |
+| `openedx-platform` @ `bmtcril/oex26_conference_workshop` | Fires that event after successful registration | Event never fires |
+| `frontend-app-authn` @ `bmtcril/oex26_conference_workshop` | Plugin slot in the registration form using the code from "frontend" | Demographics fields don't appear in the MFE |
 
-We assume you have the `frontend-app-authn`, `openedx-events`, and `edx-platform` repositories checked out one directory above this one, but the paths below can be adjusted as needed.
+Verify the correct branches are checked out before continuing:
 
 ```bash
-# In your frontend-app-authn checkout:
-git am /path/to/oex26-demographics-plugin/upstream-patches/frontend-app-authn.patch
-
-# In your openedx-events checkout:
-git am /path/to/oex26-demographics-plugin/upstream-patches/openedx-events.patch
-
-# In your edx-platform checkout:
-git am /path/to/oex26-demographics-plugin/upstream-patches/edx-platform.patch
+for repo in ../openedx-platform ../frontend-app-authn ../openedx-events; do
+    echo "$(basename $repo): $(git -C $repo rev-parse --abbrev-ref HEAD)"
+done
+# Each should print: bmtcril/oex26_conference_workshop
 ```
-
-If the patches don't apply cleanly (upstream has moved), review the diffs manually — each commit message explains exactly what to add and where.
 
 ---
 
@@ -56,9 +51,11 @@ If not already enabled, the `mfe` plugin must be enabled as well.
 
 ```bash
 # From the repo root — install the tutor plugin package into tutor's Python env
+# this will also install tutor and tutor-mfe @ main
 pip install -e ./tutor_plugin
 
 tutor plugins enable demographics_plugin
+tutor plugins enable mfe
 tutor plugins list   # demographics_plugin and mfe should appear as enabled
 ```
 
@@ -66,8 +63,8 @@ tutor plugins list   # demographics_plugin and mfe should appear as enabled
 
 ## 4. Mount the backend and authn MFE for live edits
 
-This adds our local patched source directories to the Tutor so they will be 
-built into the images below.
+This adds the local source directories to Tutor so they will be built into the images below
+and as much as possible immediately display code changes.
 
 ```bash
 tutor mounts add ./backend  # the backend Django plugin from this repo
@@ -82,12 +79,10 @@ tutor mounts list
 ## 5. Build images and launch
 
 ```bash
-tutor images build openedx   # installs the backend Django app into the LMS image
-tutor images build mfe       # installs the npm package into the authn MFE
 tutor dev launch
 ```
 
-`tutor dev launch` runs `init` internally, which applies all pending Django migrations including `registration_demographics`. No manual migration step is needed.
+`tutor dev launch` runs `init` internally, which applies all pending Django migrations including `registration_demographics`.
 
 ---
 

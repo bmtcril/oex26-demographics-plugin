@@ -24,7 +24,7 @@ participants can compare the two side-by-side.
 - [Quick start](#quick-start)
 - [Repository structure](#repository-structure)
 - [Workshop section ↔ code map](#workshop-section--code-map)
-- [Upstream patches](#upstream-patches)
+- [Workshop branches](#workshop-branches)
 - [Further reading](#further-reading)
 
 ---
@@ -33,9 +33,9 @@ participants can compare the two side-by-side.
 
 | Layer | What we extend | Where it lives |
 |-------|----------------|----------------|
-| **Frontend MFE** | New plugin slot in the registration form, filled by a React component that collects pronouns + department. | [`frontend/`](./frontend/) and [`upstream-patches/frontend-app-authn.patch`](./upstream-patches/) |
+| **Frontend MFE** | New plugin slot in the registration form, filled by a React component that collects pronouns + department. | [`frontend/`](./frontend/) and [`frontend-app-authn` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) |
 | **Filter** | New pipeline step on `StudentRegistrationRequested` that validates the demographic fields. | [`backend/src/registration_demographics/pipeline.py`](./backend/) |
-| **Event** | A brand-new `RegistrationDemographicsCaptured` event fired after successful registration. | [`upstream-patches/openedx-events.patch`](./upstream-patches/) (definition) and [`backend/src/registration_demographics/signals.py`](./backend/) (receiver) |
+| **Event** | A brand-new `RegistrationDemographicsCaptured` event fired after successful registration. | [`openedx-events` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) (definition) and [`backend/src/registration_demographics/signals.py`](./backend/) (receiver) |
 | **Django app plugin** | New `LearnerDemographics` model, REST API, admin, migrations. | [`backend/src/registration_demographics/`](./backend/) |
 | **Tutor plugin** | One-shot installer that wires everything above into LMS + the `authn` MFE. | [`tutor_plugin/tutordemographicsplugin/plugin.py`](./tutor_plugin/) |
 
@@ -56,12 +56,12 @@ repo so you can flip between them.
 | Open edX Filters pipeline step | `pipeline.py` | `backend/src/registration_demographics/pipeline.py` |
 | Frontend MFE plugin | `frontend/src/plugin.jsx` | `frontend/src/DemographicsFields.jsx` |
 | Tutor plugin | `tutor/tutorsampleplugin/plugin.py` | `tutor_plugin/tutordemographicsplugin/plugin.py` |
-| Upstream platform changes | _(none — sample-plugin only consumes existing extension points)_ | `upstream-patches/` |
+| Upstream platform changes | _(none — sample-plugin only consumes existing extension points)_ | workshop branches (see below) |
 
 The last row is the headline difference: this workshop is about **creating
-new extension points**, not just consuming them, so the patches against
-`frontend-app-authn`, `openedx-events`, and `edx-platform` live alongside the
-plugin.
+new extension points**, not just consuming them, so the changes against
+`frontend-app-authn`, `openedx-events`, and `openedx-platform` live in
+dedicated workshop branches alongside the plugin.
 
 ---
 
@@ -71,27 +71,20 @@ plugin.
 > environment, with [`tutor-mfe`](https://github.com/overhangio/tutor-mfe)
 > installed.
 >
-> **Note:** Until the [`upstream-patches/`](./upstream-patches/) are merged
-> upstream, you'll need to apply them to your local `frontend-app-authn`,
-> `openedx-events`, and `edx-platform` checkouts before the demo will be
-> fully functional. Each patch file has a detailed commit message explaining
-> what to apply and why. The plugin itself degrades gracefully if the upstream
-> hooks aren't present — useful while reviewing.
+> **Note:** This demo requires the workshop branches of `frontend-app-authn`,
+> `openedx-events`, and `openedx-platform` to be checked out as siblings of
+> this repo. The automated setup script handles mounting and verification.
 
 ```bash
-# 1. Clone this repo
+# 1. Clone this repo and the three workshop branches as siblings
 git clone https://github.com/bmtcril/oex26-demographics-plugin.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/frontend-app-authn.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/openedx-events.git
+git clone --branch bmtcril/oex26_conference_workshop https://github.com/openedx/openedx-platform.git
+
+# 2. Run the automated setup (mounts all repos, installs plugins, launches)
 cd oex26-demographics-plugin
-
-# 2. Mount the backend so dev edits are live
-tutor mounts add ./backend
-
-# 3. Install + enable the Tutor plugin
-tutor plugins install ./tutor_plugin
-tutor plugins enable demographics_plugin
-
-# 4. Build & launch
-tutor dev launch
+bash scripts/setup_dev.sh
 ```
 
 Verification:
@@ -114,17 +107,23 @@ oex26-demographics-plugin/
 ├── README.md                       ← you are here
 ├── workshop-plan.md                ← workshop facilitator plan
 ├── LICENSE                         ← Apache-2.0
+├── scripts/
+│   └── setup_dev.sh                ← automated dev environment setup
 ├── backend/                        ← Django app plugin (pip-installable)
 │   └── src/registration_demographics/
-├── frontend/                       ← React component (npm-publishable)
+├── frontend/                       ← React component (local build, no npm publish)
 │   └── src/DemographicsFields.jsx
-├── tutor_plugin/                   ← Tutor plugin that ties it all together
-│   └── tutordemographicsplugin/plugin.py
-└── upstream-patches/               ← what we'd send upstream to make the
-    ├── frontend-app-authn.patch    ←   extension points exist
-    ├── openedx-events.patch
-    └── edx-platform.patch
+└── tutor_plugin/                   ← Tutor plugin that ties it all together
+    └── tutordemographicsplugin/plugin.py
 ```
+
+The upstream platform changes live in dedicated workshop branches:
+
+| Repo | Branch |
+|------|--------|
+| [`openedx/frontend-app-authn`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) | `bmtcril/oex26_conference_workshop` |
+| [`openedx/openedx-events`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) | `bmtcril/oex26_conference_workshop` |
+| [`openedx/openedx-platform`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop) | `bmtcril/oex26_conference_workshop` |
 
 Each subdirectory has its own `README.md` with deeper dives.
 
@@ -137,22 +136,22 @@ For facilitators walking through the [workshop plan](./workshop-plan.md):
 | Workshop section | Files to open |
 |------------------|---------------|
 | §3 Anatomy of extension points | this README's table + the architecture diagram in `workshop-plan.md` |
-| §4 Frontend: adding a plugin slot | `upstream-patches/frontend-app-authn.patch`, then `frontend/src/DemographicsFields.jsx` |
+| §4 Frontend: adding a plugin slot | [`frontend-app-authn` workshop branch](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop), then `frontend/src/DemographicsFields.jsx` |
 | §5A Adding a filter | `backend/src/registration_demographics/pipeline.py`, `backend/src/registration_demographics/settings/common.py` |
-| §5B Adding / extending an event | `upstream-patches/openedx-events.patch`, `upstream-patches/edx-platform.patch`, `backend/src/registration_demographics/signals.py` |
+| §5B Adding / extending an event | [`openedx-events` workshop branch](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop), [`openedx-platform` workshop branch](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop), `backend/src/registration_demographics/signals.py` |
 | §6 Django plugins & Tutor wiring | `backend/pyproject.toml`, `backend/src/registration_demographics/apps.py`, `tutor_plugin/tutordemographicsplugin/plugin.py` |
-| §7 Getting it merged | commit messages on each patch in `upstream-patches/` |
+| §7 Getting it merged | commit messages on each workshop branch |
 
 ---
 
-## Upstream patches
+## Workshop branches
 
-The patches in [`upstream-patches/`](./upstream-patches/) are written as if
-they were ready-to-send PRs against:
+The upstream platform changes are staged in dedicated branches, written as if
+they were ready-to-send PRs:
 
-- [`openedx/frontend-app-authn`](https://github.com/openedx/frontend-app-authn) — adds the new `PluginSlot`.
-- [`openedx/openedx-events`](https://github.com/openedx/openedx-events) — defines `RegistrationDemographicsCaptured`.
-- [`openedx/edx-platform`](https://github.com/openedx/edx-platform) — fires the new filter and event.
+- [`openedx/frontend-app-authn` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop) — adds the new `PluginSlot`.
+- [`openedx/openedx-events` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) — defines `RegistrationDemographicsCaptured`.
+- [`openedx/openedx-platform` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop) — fires the new filter and event.
 
 Their commit messages double as the "discussion-first" forum posts described
 in workshop §7.
@@ -161,7 +160,7 @@ in workshop §7.
 
 ## End-to-end smoke test
 
-See **[`E2E.md`](./E2E.md)** for the complete walkthrough — from applying the upstream patches to verifying the filter, event, DB record, and REST API in a `tutor dev` environment.
+See **[`E2E.md`](./E2E.md)** for the complete walkthrough — from checking out the workshop branches to verifying the filter, event, DB record, and REST API in a `tutor dev` environment.
 
 ---
 
