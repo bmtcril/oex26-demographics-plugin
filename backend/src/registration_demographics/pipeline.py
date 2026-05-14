@@ -18,6 +18,7 @@ about what a valid department is. If you change the rules, change them
 there.
 """
 
+from logging import getLogger
 from typing import Any
 
 from django.http import QueryDict
@@ -26,6 +27,8 @@ from openedx_filters.learning.filters import StudentRegistrationRequested
 from rest_framework import serializers as drf_serializers
 
 from .serializers import validate_department
+
+logger = getLogger(__name__)
 
 
 class ValidateDemographicsFields(PipelineStep):
@@ -50,6 +53,7 @@ class ValidateDemographicsFields(PipelineStep):
             ``{"form_data": form_data}`` so the platform's pipeline runner
             propagates our (possibly mutated) copy to the next step.
         """
+        logger.info("run_filter: form_data=%s", form_data)
         # Whitespace-normalise pronouns. Free-text input plus default
         # autocomplete behaviour means leading/trailing whitespace is common
         # and harmless; persisting it would just look ugly in admin.
@@ -64,6 +68,7 @@ class ValidateDemographicsFields(PipelineStep):
         # semantics is honoured here automatically.
         department = form_data.get("department", "")
         try:
+            logger.info("validate_department: department=%s", department)
             validate_department(department)
         except drf_serializers.ValidationError as exc:
             # PreventRegistration takes a single human-readable message and
