@@ -60,10 +60,7 @@ class LearnerDemographics(models.Model):
         max_length=64,
         blank=True,
         default="",
-        help_text=(
-            "Department affiliation key. Validated against "
-            "settings.REGISTRATION_DEMOGRAPHICS_DEPARTMENTS."
-        ),
+        help_text=("Department affiliation key. Validated against settings.REGISTRATION_DEMOGRAPHICS_DEPARTMENTS."),
     )
 
     created = models.DateTimeField(auto_now_add=True)
@@ -74,6 +71,4 @@ class LearnerDemographics(models.Model):
         verbose_name_plural = "Learner demographics"
 
     def __str__(self) -> str:
-        return (
-            f"LearnerDemographics(user={self.user_id}, dept={self.department or '-'})"  # type: ignore[attr-defined]
-        )
+        return f"LearnerDemographics(user={self.user_id}, dept={self.department or '-'})"  # type: ignore[attr-defined]

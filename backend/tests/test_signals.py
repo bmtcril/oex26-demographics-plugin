@@ -8,12 +8,13 @@ these tests fail.
 
 import pytest
 from django.contrib.auth.models import User
-from openedx_events.learning.data import UserData, UserPersonalData
-
-from registration_demographics.events import (
-    REGISTRATION_DEMOGRAPHICS_CAPTURED,
-    RegistrationDemographicsData,
+from openedx_events.learning.data import (
+    RegistrationDemographicsData,  # type: ignore[attr-defined]
+    UserData,
+    UserPersonalData,
 )
+from openedx_events.learning.signals import REGISTRATION_DEMOGRAPHICS_CAPTURED  # type: ignore[attr-defined]
+
 from registration_demographics.models import LearnerDemographics
 
 
@@ -61,9 +62,7 @@ def test_event_is_idempotent(user: User) -> None:
     assert record.department == "ops"
 
 
-def test_event_handles_unknown_user(
-    db: None, caplog: pytest.LogCaptureFixture
-) -> None:
+def test_event_handles_unknown_user(db: None, caplog: pytest.LogCaptureFixture) -> None:
     """Events for non-existent users log a warning and don't crash."""
     ghost_pii = UserPersonalData("ghost", "g@x", "Ghost")  # type: ignore
     ghost = UserData(999_999, True, ghost_pii)  # type: ignore
