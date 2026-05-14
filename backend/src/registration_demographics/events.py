@@ -1,6 +1,8 @@
 """
 ``RegistrationDemographicsCaptured`` event definition.
 
+**NOT ACTUALLY USED, see below.**
+
 ----------------------------------------------------------------------------
 **Where this lives long-term:**
 This module is the *staging ground* for the event definition. The intent is
@@ -14,8 +16,9 @@ written against the eventual upstream version will continue to match the
 same Django signal even before the migration lands.
 ----------------------------------------------------------------------------
 
-Workshop §5B uses this file as the live-coding artifact for "defining a
-new event."
+Workshop §5B uses this file as a sample for showing the staging ground for
+"defining anew event" but the actual functional code being used comes from
+the ``openedx_events.learning`` package.
 """
 
 from __future__ import annotations

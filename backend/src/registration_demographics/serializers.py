@@ -7,10 +7,14 @@ looks like. The filter pipeline step in Step 4 reuses
 filter checks can never disagree.
 """
 
+from logging import getLogger
+
 from django.conf import settings
 from rest_framework import serializers
 
 from .models import LearnerDemographics
+
+logger = getLogger(__name__)
 
 
 def validate_department(value: str) -> str:
@@ -21,6 +25,7 @@ def validate_department(value: str) -> str:
     DRF layer renders a clean 400. The pipeline step in Step 4 catches the
     same exception and re-raises a filter-specific error.
     """
+    logger.info("validate_department: value=%s", value)
     if value == "":
         # Empty string is allowed — department is optional.
         return value
