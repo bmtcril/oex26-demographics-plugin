@@ -62,8 +62,6 @@ The running example lives in this repo. As facilitators, this is what's already 
 | —       | Top-level `README.md` (Quick Start, plugin types table, workshop ↔ code map)                 | ✅ |
 | —       | `E2E.md` — end-to-end smoke test commands                                                     | ✅ |
 
-The `private/Demographic Plumbing Plugin Repository Architecture Plan.md` document captures the full build plan and the renumbered step ordering we're following.
-
 ---
 
 ## Narrative Arc & Running Example
