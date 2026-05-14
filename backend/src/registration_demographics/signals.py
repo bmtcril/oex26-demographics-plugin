@@ -20,15 +20,15 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from django.db.utils import IntegrityError
+from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 
 # -------------------------------------------------------------------
 # During development, we use the local event definition in ``.events``
 # but switch to the upstream definition in ``openedx_events.learning``
 # when the event is ready to be published.
-from openedx_events.learning.data import RegistrationDemographicsData
-from openedx_events.learning.signals import REGISTRATION_DEMOGRAPHICS_CAPTURED
+from openedx_events.learning.data import RegistrationDemographicsData  # type: ignore[attr-defined]
+from openedx_events.learning.signals import REGISTRATION_DEMOGRAPHICS_CAPTURED  # type: ignore[attr-defined]
 
 # from .events import REGISTRATION_DEMOGRAPHICS_CAPTURED, RegistrationDemographicsData
 # -------------------------------------------------------------------
@@ -49,30 +49,29 @@ def persist_registration_demographics(
     Idempotent: if a record already exists for this user, fields are updated
     rather than duplicated. This protects against duplicate event delivery
     (e.g. if events are coming from different places, or the event bus).
-
-    Perf note: There is an argument to be made that we should make another
-    query here to confirm the existence of the user, but the upsert will
-    failif the user does not exist, so we can rely on that exception and
-    save the round trip.
     """
+    user_id = demographics.user.id
+    User = get_user_model()
     try:
-        record, created = LearnerDemographics.objects.update_or_create(
-            user_id=demographics.user.id,
-            defaults={
-                "pronouns": demographics.pronouns or "",
-                "department": demographics.department or "",
-            },
-        )
-        logger.info(
-            "registration_demographics: %s LearnerDemographics for user_id=%s (pronouns=%r, department=%r)",
-            "created" if created else "updated",
-            demographics.user.id,
-            record.pronouns,
-            record.department,
-        )
-    except IntegrityError:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
         logger.warning(
             "registration_demographics: dropping event for unknown user_id=%s",
-            demographics.user.id,
+            user_id,
         )
         return
+
+    record, created = LearnerDemographics.objects.update_or_create(
+        user=user,
+        defaults={
+            "pronouns": demographics.pronouns or "",
+            "department": demographics.department or "",
+        },
+    )
+    logger.info(
+        "registration_demographics: %s LearnerDemographics for user_id=%s (pronouns=%r, department=%r)",
+        "created" if created else "updated",
+        user_id,
+        record.pronouns,
+        record.department,
+    )

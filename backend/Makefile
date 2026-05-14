@@ -2,13 +2,13 @@
 # Mirrors the sample-plugin's Makefile interface so participants can move
 # between repos without re-learning commands.
 
-.PHONY: help install test quality clean migrate
+.PHONY: help install test quality test-all clean migrate
 
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install the plugin (editable) with test and dev extras.
-	pip install -e ".[test,dev]"
+	uv pip install -e ".[test,dev]"
 
 test: ## Run the test suite via pytest.
 	pytest
@@ -16,6 +16,11 @@ test: ## Run the test suite via pytest.
 quality: ## Run ruff (lint) and pyright (type check).
 	ruff check src/ tests/
 	pyright src/
+
+test-all: ## Run all dev tests
+	make clean
+	make test
+	make quality
 
 migrate: ## Run plugin migrations against the LMS (use inside tutor dev shell).
 	./manage.py lms migrate registration_demographics

@@ -30,7 +30,7 @@ dependencies = [
     "djangorestframework",
     "django-filter",
     "edx-django-utils",
-    "openedx-events",
+    "openedx-events @ git+https://github.com/openedx/openedx-events@bmtcril/oex26_conference_workshop",
     "openedx-filters",
 ]
 
