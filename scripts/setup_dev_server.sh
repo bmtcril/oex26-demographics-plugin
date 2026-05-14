@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 
-# Builds a clean, isolated Tutor dev environment for the OEX 2026 workshop.
-# Covers E2E.md steps 3–5 (assumes step 1 "clone" and step 2 "branch checkout" are done).
-#
-# Usage (from repo root):
-#   bash scripts/setup_dev.sh           # idempotent: skips destructive steps
-#   bash scripts/setup_dev.sh --reset   # wipes .tutor_root and reinstalls packages
-#
-# All Tutor state is written to .tutor_root/ inside this repo — it won't
-# interfere with any other Tutor installation on the machine.
+# Builds a clean, isolated Tutor environment on a fresh Ubuntu server.
 
 set -euo pipefail
 
@@ -39,19 +31,46 @@ die()  { echo; echo "ERROR: $*" >&2; exit 1; }
 
 step "Pre-flight checks"
 
+if [[ "$RESET" == true ]]; then
+    echo
+    echo "  WARNING: --reset will hard-reset all three workshop repos to origin."
+    echo "  Any local changes in the following directories will be permanently lost:"
+    for repo_path in "$OPENEDX_PLATFORM" "$FRONTEND_AUTHN" "$OPENEDX_EVENTS"; do
+        echo "    $repo_path"
+    done
+    echo
+    read -r -p "  Continue? [y/N] " _confirm
+    if [[ "$_confirm" != "y" && "$_confirm" != "Y" ]]; then
+        echo "Aborted."
+        exit 0
+    fi
+fi
+
+# ── Clone or verify workshop repos ───────────────────────────────────────────
+
+step "Workshop repository setup"
+
 for repo_path in "$OPENEDX_PLATFORM" "$FRONTEND_AUTHN" "$OPENEDX_EVENTS"; do
     repo_name="$(basename "$repo_path")"
+    remote_url="https://github.com/openedx/${repo_name}.git"
+
     if [[ ! -d "$repo_path/.git" ]]; then
-        die "Expected repo not found: $repo_path
-  Clone it and check out the workshop branch before running this script.
-  See E2E.md §1–2 for instructions."
+        info "Cloning $repo_name @ $WORKSHOP_BRANCH ..."
+        git clone --branch "$WORKSHOP_BRANCH" "$remote_url" "$repo_path"
+    elif [[ "$RESET" == true ]]; then
+        info "Hard-resetting $repo_name to origin/$WORKSHOP_BRANCH ..."
+        git -C "$repo_path" fetch origin
+        git -C "$repo_path" checkout "$WORKSHOP_BRANCH"
+        git -C "$repo_path" reset --hard "origin/$WORKSHOP_BRANCH"
+    else
+        current_branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "(unknown)")"
+        if [[ "$current_branch" != "$WORKSHOP_BRANCH" ]]; then
+            die "$repo_name is on branch '$current_branch', expected '$WORKSHOP_BRANCH'.
+  Run: git -C $repo_path checkout $WORKSHOP_BRANCH
+  Or re-run with --reset to hard-reset all repos to origin."
+        fi
+        info "Found $repo_name @ $WORKSHOP_BRANCH"
     fi
-    current_branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "(unknown)")"
-    if [[ "$current_branch" != "$WORKSHOP_BRANCH" ]]; then
-        die "$repo_name is on branch '$current_branch', expected '$WORKSHOP_BRANCH'.
-  Run: git -C $repo_path checkout $WORKSHOP_BRANCH"
-    fi
-    info "Found $repo_name @ $WORKSHOP_BRANCH"
 done
 
 PYTHON_BIN="$VENV/bin/python"
@@ -112,9 +131,9 @@ fi
 
 step "E2E §4 — Mounting source directories"
 tutor mounts add "$REPO_ROOT/backend"         # our Django app (live-editable)
-tutor mounts add "$OPENEDX_PLATFORM"          # patched openedx-platform
-tutor mounts add "$FRONTEND_AUTHN"            # patched frontend-app-authn
-tutor mounts add "$OPENEDX_EVENTS"            # patched openedx-events
+tutor mounts add "$OPENEDX_PLATFORM"          # workshop branch of openedx-platform
+tutor mounts add "$FRONTEND_AUTHN"            # workshop branch of frontend-app-authn
+tutor mounts add "$OPENEDX_EVENTS"            # workshop branch of openedx-events
 echo
 tutor mounts list
 
