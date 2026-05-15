@@ -177,12 +177,11 @@ else
     info "Tutor already installed — skipping package installation (pass --reset to reinstall)."
 fi
 
-# ── E2E §4 — Mount source directories ────────────────────────────────────────
-
+# ── E2E §4 — Mount backend source directories ────────────────────────────────────────
+# Note: Frontend mount has to happen AFTER the first build of mfe
 step "E2E §4 — Mounting source directories"
 tutor mounts add "$REPO_ROOT/backend"         # our Django app (live-editable)
 tutor mounts add "$OPENEDX_PLATFORM"          # workshop branch of openedx-platform
-tutor mounts add "$FRONTEND_AUTHN"            # workshop branch of frontend-app-authn
 tutor mounts add "$OPENEDX_EVENTS"            # workshop branch of openedx-events
 echo
 tutor mounts list
@@ -193,6 +192,10 @@ tutor mounts list
 step "E2E §5 — tutor dev"
 info "Running build images."
 tutor images build openedx mfe-dev authn-dev
+
+# ── E2E §4 — Build and mount frontend source directory───────────────────────
+npm --prefix "$FRONTEND_AUTHN" ci "$FRONTEND_AUTHN"
+tutor mounts add "$FRONTEND_AUTHN"            # workshop branch of frontend-app-authn
 
 info "Running dev init."
 tutor dev do init
