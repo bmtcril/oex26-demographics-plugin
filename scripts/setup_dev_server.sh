@@ -183,6 +183,9 @@ step "E2E §4 — Mounting source directories"
 tutor mounts add "$REPO_ROOT/backend"         # our Django app (live-editable)
 tutor mounts add "$OPENEDX_PLATFORM"          # workshop branch of openedx-platform
 tutor mounts add "$OPENEDX_EVENTS"            # workshop branch of openedx-events
+
+# MFE won't build with this, remove for now and add back later
+tutor mounts remove "$FRONTEND_AUTHN"
 echo
 tutor mounts list
 
