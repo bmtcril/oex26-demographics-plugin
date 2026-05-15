@@ -34,11 +34,13 @@ except ImportError:
 hooks.Filters.MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))
 
 # The openedx-dockerfile-post-python-requirements patch runs after pip
-# installs the base Open edX requirements. We install only into the LMS
-# image here; CMS does not run registration code so we skip it.
+# installs the base Open edX requirements.
 #
-# Workshop talking point: compare with sample-plugin which uses the same
-# patch for both LMS and CMS. The right scope is a design decision.
+# This would normally install from PyPI or a github repository.For this
+# demo we skip installing since we are mounting an editable install for
+# hot reloading purposes.
+#
+#
 # hooks.Filters.ENV_PATCHES.add_item(
 #    (
 #        "openedx-lms-dockerfile-post-python-requirements",
@@ -67,25 +69,29 @@ hooks.Filters.MOUNTED_DIRECTORIES.add_item(("openedx", "backend"))
 if _tutormfe_available:
     # Step 1: Install the npm package into all MFE images.
     #
+    # This configuration isn't being used in the demo since we're hot
+    # reloading authn from the local directory instead of installing from
+    # npm.
+    #
     # Ideally this would use mfe-dockerfile-post-npm-install-authn to scope
     # installation to frontend-app-authn only, but env.config.jsx is a single
     # shared file rendered for all MFEs. The buildtime import below must
     # resolve in every MFE's node_modules, so we install it globally.
-    hooks.Filters.ENV_PATCHES.add_item(
-        (
-            "mfe-dockerfile-post-npm-install",
-            "RUN npm install openedx-demographics-plugin",
-        )
-    )
+    # hooks.Filters.ENV_PATCHES.add_item(
+    #    (
+    #        "mfe-dockerfile-post-npm-install",
+    #        "RUN npm install openedx-demographics-plugin",
+    #    )
+    # )
 
     # Step 2: Import DemographicsFields in env.config.jsx so it is in scope
     # when the slot configuration is evaluated at runtime.
-    hooks.Filters.ENV_PATCHES.add_item(
-        (
-            "mfe-env-config-buildtime-imports",
-            "import { DemographicsFields } from 'openedx-demographics-plugin';",
-        )
-    )
+    # hooks.Filters.ENV_PATCHES.add_item(
+    #    (
+    #        "mfe-env-config-buildtime-imports",
+    #        "import { DemographicsFields } from 'openedx-demographics-plugin';",
+    #    )
+    # )
 
     # Step 3: Register DemographicsFields against the registration slot.
     #
