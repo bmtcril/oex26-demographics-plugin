@@ -191,7 +191,7 @@ tutor mounts list
 
 step "E2E §5 — tutor dev"
 info "Running build images."
-tutor images build openedx mfe-dev authn-dev
+tutor images build openedx mfe
 
 # ── E2E §4 — Build and mount frontend source directory───────────────────────
 npm --prefix "$FRONTEND_AUTHN" ci "$FRONTEND_AUTHN"
@@ -200,10 +200,12 @@ tutor mounts add "$FRONTEND_AUTHN"            # workshop branch of frontend-app-
 info "Running dev init."
 tutor dev do init
 
-ifno "Stopping tutor services."
-tutor dev stop
-
 info "Creating admin user."
 tutor dev do createuser --staff --superuser --password workshop oex_workshop workshop@oex.invalid
 echo
+
+ifno "Stopping tutor services."
+tutor dev stop
+echo
+
 echo "✔  Setup complete. Run 'tutor dev start -d' to run everything in the background."
