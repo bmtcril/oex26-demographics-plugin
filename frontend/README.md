@@ -7,7 +7,7 @@ It implements the frontend half of the demographics feature:
 
 - a `DemographicsFields` component that renders **Pronouns** and **Department**
   fields into the `org.openedx.frontend.authn.register.additional_fields.v1`
-  plugin slot (workshop §4),
+  plugin slot
 - an optional `departments` prop so operators can supply their own list without
   forking the component.
 
@@ -59,9 +59,6 @@ via `__mocks__/@openedx/paragon.js`.
    against slot ID `org.openedx.frontend.authn.register.additional_fields.v1`
    at runtime, passing `formFields` and `setFormField` as `pluginProps`.
 
-All three steps are load-bearing — see the §6 talking point in
-[`workshop-plan.md`](../workshop-plan.md) for why each one is necessary.
-
 ## Props
 
 | Prop | Type | Required | Description |
@@ -69,16 +66,3 @@ All three steps are load-bearing — see the §6 talking point in
 | `formFields` | `Record<string, string>` | yes | Current registration form values, keyed by field name. |
 | `setFormField` | `Function` | yes | Change handler; called with a synthetic event whose `target` has `name` and `value`. Matches the handler signature already used by the authn MFE form. |
 | `departments` | `Array<{value, label}>` | no | Overrides the default department list. Pass via `pluginProps` in `env.config.jsx` to customise options without forking the component. |
-
-## Workshop reference
-
-Open `DemographicsFields.jsx` first in workshop §4 — it's intentionally
-minimal so the focus stays on the slot wiring, not the component internals.
-The two things worth pointing out are:
-
-- **The slot ID** (`org.openedx.frontend.authn.register.additional_fields.v1`)
-  and its naming convention (reverse-DNS, versioned).
-- **The `setFormField` prop** — the component doesn't maintain its own state;
-  it participates in the parent form's state machinery via the handler passed
-  from the slot, which is why the fields appear in the final POST payload
-  without any extra wiring.

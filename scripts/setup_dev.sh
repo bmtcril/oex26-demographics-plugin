@@ -16,7 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export TUTOR_ROOT="$REPO_ROOT/.tutor_root"
 VENV="$REPO_ROOT/.venv"
 
-# Sibling repos expected one directory above this repo (as cloned in E2E §1)
+# Sibling repos expected one directory above this repo
 PARENT="$(dirname "$REPO_ROOT")"
 OPENEDX_PLATFORM="$PARENT/openedx-platform"
 FRONTEND_AUTHN="$PARENT/frontend-app-authn"
@@ -43,8 +43,7 @@ for repo_path in "$OPENEDX_PLATFORM" "$FRONTEND_AUTHN" "$OPENEDX_EVENTS"; do
     repo_name="$(basename "$repo_path")"
     if [[ ! -d "$repo_path/.git" ]]; then
         die "Expected repo not found: $repo_path
-  Clone it and check out the workshop branch before running this script.
-  See E2E.md §1–2 for instructions."
+  Clone it and check out the workshop branch before running this script."
     fi
     current_branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "(unknown)")"
     if [[ "$current_branch" != "$WORKSHOP_BRANCH" ]]; then
@@ -91,10 +90,10 @@ else
     info "Skipping .tutor_root removal (pass --reset to wipe and start fresh)."
 fi
 
-# ── E2E §3 — Install the Tutor plugin (--reset only) ─────────────────────────
+# ── Install the Tutor plugin (--reset only) ─────────────────────────
 
 if [[ "$RESET" == true ]]; then
-    step "E2E §3 — Installing Tutor, tutor-mfe, and the demographics plugin  [--reset]"
+    step "Installing Tutor, tutor-mfe, and the demographics plugin  [--reset]"
     # This pulls in the correct version of tutor and tutor-mfe, don't manage
     # them here.
     uv pip install -e "$REPO_ROOT/tutor_plugin"
@@ -108,9 +107,9 @@ else
     info "Skipping package installation (pass --reset to reinstall)."
 fi
 
-# ── E2E §4 — Mount source directories ────────────────────────────────────────
+# ── Mount source directories ────────────────────────────────────────
 
-step "E2E §4 — Mounting source directories"
+step "Mounting source directories"
 tutor mounts add "$REPO_ROOT/backend"         # our Django app (live-editable)
 tutor mounts add "$OPENEDX_PLATFORM"          # patched openedx-platform
 tutor mounts add "$FRONTEND_AUTHN"            # patched frontend-app-authn
@@ -118,14 +117,14 @@ tutor mounts add "$OPENEDX_EVENTS"            # patched openedx-events
 echo
 tutor mounts list
 
-# ── E2E §5 — Build images and launch ─────────────────────────────────────────
+# ── Build images and launch ─────────────────────────────────────────
 
 
-step "E2E §5 — Launching tutor dev"
+step "Launching tutor dev"
 info "Running 'tutor dev launch' — migrations run automatically during init."
 tutor dev launch
 
 info "Creating admin use."
 tutor dev do createuser --staff --superuser --password workshop oex_workshop workshop@oex.invalid
 echo
-echo "✔  Setup complete. See E2E.md §6–10 for verification steps."
+echo "✔  Setup complete. See E2E.md for verification steps."

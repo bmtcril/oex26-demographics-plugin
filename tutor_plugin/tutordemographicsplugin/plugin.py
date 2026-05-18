@@ -9,9 +9,6 @@ frontend-app-authn registration form slot.
 Requirements:
     tutor>=17.0.0
     tutor-mfe (for frontend slot configuration — degrades gracefully if absent)
-
-Workshop §6 walks through this file section-by-section as the live-coding
-artifact for "Tutor wiring."
 """
 
 from tutor import hooks

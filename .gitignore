@@ -69,7 +69,7 @@ yarn-error.log*
 frontend/dist/
 *.tsbuildinfo
 
-# Local MFE config (per workshop-plan §4)
+# Local MFE config
 env.config.jsx
 module.config.js
 

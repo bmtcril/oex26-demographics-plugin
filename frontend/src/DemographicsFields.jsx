@@ -8,12 +8,12 @@
  * (select) — and wires them into the parent registration form via the
  * slot-provided setFormField handler.
  *
- * Workshop §4 uses this component as the live-coding target for
+ * The workshop uses this component as the live-coding target for
  * "what a plugin that fills a slot looks like."
  */
 
-import React from 'react';
-import { Form } from '@openedx/paragon';
+import React from "react";
+import { Form } from "@openedx/paragon";
 
 /**
  * Default department list.  Operators override this via the Tutor plugin by
@@ -21,11 +21,11 @@ import { Form } from '@openedx/paragon';
  * passed down as the `departments` prop when registering the slot.
  */
 const DEFAULT_DEPARTMENTS = [
-  { value: 'eng', label: 'Engineering' },
-  { value: 'ops', label: 'Operations' },
-  { value: 'edu', label: 'Education' },
-  { value: 'mkt', label: 'Marketing' },
-  { value: 'fin', label: 'Finance' },
+  { value: "eng", label: "Engineering" },
+  { value: "ops", label: "Operations" },
+  { value: "edu", label: "Education" },
+  { value: "mkt", label: "Marketing" },
+  { value: "fin", label: "Finance" },
 ];
 
 /**
@@ -48,7 +48,7 @@ const DemographicsFields = ({
         type="text"
         floatingLabel="Pronouns (optional)"
         placeholder="e.g. she/her, they/them"
-        value={formFields.pronouns || ''}
+        value={formFields.pronouns || ""}
         onChange={setFormField}
       />
       <Form.Text>How should we address you?</Form.Text>
@@ -59,12 +59,14 @@ const DemographicsFields = ({
         as="select"
         name="department"
         floatingLabel="Department (optional)"
-        value={formFields.department || ''}
+        value={formFields.department || ""}
         onChange={setFormField}
       >
         <option value="">— Select a department —</option>
         {departments.map(({ value, label }) => (
-          <option key={value} value={value}>{label}</option>
+          <option key={value} value={value}>
+            {label}
+          </option>
         ))}
       </Form.Control>
     </Form.Group>

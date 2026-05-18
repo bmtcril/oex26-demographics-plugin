@@ -40,7 +40,7 @@ participants can compare the two side-by-side.
 | **Tutor plugin** | One-shot installer that wires everything above into LMS + the `authn` MFE. | [`tutor_plugin/tutordemographicsplugin/plugin.py`](./tutor_plugin/) |
 
 > Aspects / xAPI integration is **out of scope** for this workshop but
-> mentioned in [§6 of the workshop plan](./workshop-plan.md) as the next step.
+> mentioned as a next step.
 
 ---
 
@@ -129,21 +129,6 @@ Each subdirectory has its own `README.md` with deeper dives.
 
 ---
 
-## Workshop section ↔ code map
-
-For facilitators walking through the [workshop plan](./workshop-plan.md):
-
-| Workshop section | Files to open |
-|------------------|---------------|
-| §3 Anatomy of extension points | this README's table + the architecture diagram in `workshop-plan.md` |
-| §4 Frontend: adding a plugin slot | [`frontend-app-authn` workshop branch](https://github.com/openedx/frontend-app-authn/tree/bmtcril/oex26_conference_workshop), then `frontend/src/DemographicsFields.jsx` |
-| §5A Adding a filter | `backend/src/registration_demographics/pipeline.py`, `backend/src/registration_demographics/settings/common.py` |
-| §5B Adding / extending an event | [`openedx-events` workshop branch](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop), [`openedx-platform` workshop branch](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop), `backend/src/registration_demographics/signals.py` |
-| §6 Django plugins & Tutor wiring | `backend/pyproject.toml`, `backend/src/registration_demographics/apps.py`, `tutor_plugin/tutordemographicsplugin/plugin.py` |
-| §7 Getting it merged | commit messages on each workshop branch |
-
----
-
 ## Workshop branches
 
 The upstream platform changes are staged in dedicated branches, written as if
@@ -153,8 +138,7 @@ they were ready-to-send PRs:
 - [`openedx/openedx-events` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-events/tree/bmtcril/oex26_conference_workshop) — defines `RegistrationDemographicsCaptured`.
 - [`openedx/openedx-platform` @ `bmtcril/oex26_conference_workshop`](https://github.com/openedx/openedx-platform/tree/bmtcril/oex26_conference_workshop) — fires the new filter and event.
 
-Their commit messages double as the "discussion-first" forum posts described
-in workshop §7.
+Their commit messages double as the "discussion-first" forum posts.
 
 ---
 

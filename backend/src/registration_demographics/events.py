@@ -16,8 +16,8 @@ written against the eventual upstream version will continue to match the
 same Django signal even before the migration lands.
 ----------------------------------------------------------------------------
 
-Workshop §5B uses this file as a sample for showing the staging ground for
-"defining anew event" but the actual functional code being used comes from
+The workshop uses this file as a sample for showing the staging ground for
+"defining a new event" but the actual functional code being used comes from
 the ``openedx_events.learning`` package.
 """
 

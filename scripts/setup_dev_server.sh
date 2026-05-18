@@ -16,7 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export TUTOR_ROOT="$REPO_ROOT/.tutor_root"
 VENV="$REPO_ROOT/.venv"
 
-# Sibling repos expected one directory above this repo (as cloned in E2E §1)
+# Sibling repos expected one directory above this repo
 PARENT="$(dirname "$REPO_ROOT")"
 OPENEDX_PLATFORM="$PARENT/openedx-platform"
 FRONTEND_AUTHN="$PARENT/frontend-app-authn"
@@ -160,10 +160,10 @@ else
     info "Skipping .tutor_root removal (pass --reset to wipe and start fresh)."
 fi
 
-# ── E2E §3 — Install the Tutor plugin (--reset only) ─────────────────────────
+# ── Install the Tutor plugin (--reset only) ─────────────────────────
 
 if [[ "$RESET" == true ]] || ! command -v tutor >/dev/null 2>&1; then
-    step "E2E §3 — Installing Tutor, tutor-mfe, and the demographics plugin"
+    step "Installing Tutor, tutor-mfe, and the demographics plugin"
     # This pulls in the correct version of tutor and tutor-mfe, don't manage
     # them here.
     uv pip install -e "$REPO_ROOT/tutor_plugin"
@@ -177,9 +177,9 @@ else
     info "Tutor already installed — skipping package installation (pass --reset to reinstall)."
 fi
 
-# ── E2E §4 — Mount backend source directories ────────────────────────────────────────
+# ── Mount backend source directories ────────────────────────────────────────
 # Note: Frontend mount has to happen AFTER the first build of mfe
-step "E2E §4 — Mounting source directories"
+step "Mounting source directories"
 tutor mounts add "$REPO_ROOT/backend"         # our Django app (live-editable)
 tutor mounts add "$OPENEDX_PLATFORM"          # workshop branch of openedx-platform
 tutor mounts add "$OPENEDX_EVENTS"            # workshop branch of openedx-events
@@ -189,14 +189,13 @@ tutor mounts remove "$FRONTEND_AUTHN"
 echo
 tutor mounts list
 
-# ── E2E §5 — Build images and launch ─────────────────────────────────────────
-
-
-step "E2E §5 — tutor dev"
+# ── Build images and launch ─────────────────────────────────────────
+step "tutor dev"
 info "Running build images."
 tutor images build openedx mfe
 
-# ── E2E §4 — Build and mount frontend source directory───────────────────────
+tutor dev start mfe -d
+
 npm --prefix "$FRONTEND_AUTHN" ci "$FRONTEND_AUTHN"
 tutor mounts add "$FRONTEND_AUTHN"            # workshop branch of frontend-app-authn
 
@@ -211,4 +210,4 @@ ifno "Stopping tutor services."
 tutor dev stop
 echo
 
-echo "✔  Setup complete. Run 'tutor dev start -d' to run everything in the background."
+echo "✔  Setup complete. Run 'tutor dev start mfe -d' to run everything in the background."

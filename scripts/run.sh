@@ -8,7 +8,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export TUTOR_ROOT="$REPO_ROOT/.tutor_root"
 VENV="$REPO_ROOT/.venv"
 
-# Sibling repos expected one directory above this repo (as cloned in E2E §1)
+# Sibling repos expected one directory above this repo
 PARENT="$(dirname "$REPO_ROOT")"
 OPENEDX_PLATFORM="$PARENT/openedx-platform"
 FRONTEND_AUTHN="$PARENT/frontend-app-authn"
@@ -27,8 +27,7 @@ step "Pre-flight checks"
 for repo_path in "$OPENEDX_PLATFORM" "$FRONTEND_AUTHN" "$OPENEDX_EVENTS"; do
     if [[ ! -d "$repo_path/.git" ]]; then
         die "Expected repo not found: $repo_path
-  Clone it and apply the upstream patch before running this script.
-  See E2E.md §1–2 for instructions."
+  Clone it and check out the workshop branch before continuing."
     fi
     info "Found $(basename "$repo_path") at $repo_path"
 done

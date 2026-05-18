@@ -5,12 +5,11 @@ the `lms.djangoapp` entry point in [`pyproject.toml`](./pyproject.toml).
 
 It implements the backend half of the workshop's demographics example:
 
-- a `LearnerDemographics` model + admin + REST API (workshop §6),
-- a filter pipeline step on `StudentRegistrationRequested` (workshop §5A),
+- a `LearnerDemographics` model + admin + REST API
+- a filter pipeline step on `StudentRegistrationRequested`
 - an event receiver for the new `RegistrationDemographicsCaptured` event
-  (workshop §5B),
 - settings wiring that registers the filter automatically when the plugin
-  is installed.
+  is installed
 
 ## Layout
 
@@ -71,11 +70,3 @@ need `edx-platform` available.
    `@receiver` decorators register and the `PipelineStep` subclass loads.
 4. `settings/common.py:plugin_settings()` adds our pipeline step to
    `OPEN_EDX_FILTERS_CONFIG` so `StudentRegistrationRequested` runs it.
-
-## Workshop reference
-
-Open `apps.py` first in workshop §6 — it's the smallest file that
-demonstrates *all* of the wiring the platform needs. Then walk down through
-`pipeline.py` (§5A) and `signals.py` (§5B). The model and viewset
-(`models.py`, `views.py`) are intentionally simple — the workshop's focus
-is the extension-point glue, not the app itself.
