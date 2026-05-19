@@ -24,12 +24,15 @@ backend/
 │   ├── models.py           ← LearnerDemographics
 │   ├── admin.py
 │   ├── serializers.py
-│   ├── views.py            ← DRF viewset
+│   ├── views.py            ← DRF RetrieveUpdateAPIView (GET/PUT/PATCH /v1/me/)
 │   ├── urls.py
 │   ├── pipeline.py         ← openedx-filters PipelineStep
 │   ├── signals.py          ← openedx-events receivers
+│   ├── events.py           ← local staging ground for the
+│   │                         RegistrationDemographicsCaptured event
+│   │                         (the live code imports from openedx_events.learning)
 │   ├── settings/
-│   │   ├── common.py       ← plugin_settings() — filter registration
+│   │   ├── common.py       ← plugin_settings() - filter registration
 │   │   ├── production.py
 │   │   └── test.py
 │   └── migrations/

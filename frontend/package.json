@@ -1,5 +1,5 @@
 {
-  "name": "openedx-demographics-plugin",
+  "name": "@openedx/openedx-demographics-plugin",
   "version": "0.1.0",
   "description": "OEX 2026 workshop reference: frontend plugin component for the registration additional-fields slot.",
   "main": "src/index.js",

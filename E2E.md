@@ -61,17 +61,21 @@ tutor plugins list   # demographics_plugin and mfe should appear as enabled
 
 ---
 
-## 4. Mount the backend and authn MFE for live edits
+## 4. Mount the backend and the workshop-branch upstream repos
 
-This adds the local source directories to Tutor so they will be built into the images below
-and as much as possible immediately display code changes.
+This adds the local source directories to Tutor so they are mapped into the
+images below. The mounted `frontend-app-authn` workshop branch is what
+provides the `module.config.js` `localModules` alias and the `env.config.jsx`
+slot registration that pull in `DemographicsFields` from this repo's
+`frontend/` directory - see [`frontend/README.md`](./frontend/README.md) and
+[`tutor_plugin/README.md`](./tutor_plugin/README.md) for the full mechanism.
 
 ```bash
-tutor mounts add ./backend  # the backend Django plugin from this repo
-tutor mounts add ../openedx-platform
-tutor mounts add ../frontend-app-authn
-tutor mounts add ../openedx-events
-tutor mounts list   
+tutor mounts add ./backend            # this repo's Django plugin (editable install)
+tutor mounts add ../openedx-platform  # workshop branch - fires the new filter/event
+tutor mounts add ../frontend-app-authn # workshop branch - imports + registers DemographicsFields
+tutor mounts add ../openedx-events    # workshop branch - defines REGISTRATION_DEMOGRAPHICS_CAPTURED
+tutor mounts list
 ```
 
 ---
@@ -82,15 +86,23 @@ tutor mounts list
 tutor dev launch
 ```
 
-`tutor dev launch` runs `init` internally, which applies all pending Django migrations including `registration_demographics`.
+`tutor dev launch` runs `init` internally, which applies all pending Django
+migrations including `registration_demographics` - the plugin is in
+`INSTALLED_APPS` via its `lms.djangoapp` entry point, so no manual `migrate`
+step is needed.
 
 ---
 
 ## 6. Verify the frontend fields
 
 1. Open `http://local.openedx.io/register` in a browser.
-2. Scroll down — a **Pronouns** text field and a **Department** dropdown should appear just above the Create Account button.
-3. If the fields are missing: `tutor dev exec authn cat /openedx/app/env.config.jsx | grep DemographicsFields` — if it's absent, rebuild the MFE image (`tutor images build mfe && tutor dev restart mfe`).
+2. Scroll down - a **Pronouns** text field and a **Department** dropdown should appear just above the Create Account button.
+3. If the fields are missing, the mounted `frontend-app-authn` is probably not on the workshop branch (its `env.config.jsx` is what imports `DemographicsFields`). Verify with:
+
+   ```bash
+   git -C ../frontend-app-authn rev-parse --abbrev-ref HEAD   # expect: bmtcril/oex26_conference_workshop
+   tutor dev exec authn cat /openedx/app/env.config.jsx | grep DemographicsFields
+   ```
 
 ---
 

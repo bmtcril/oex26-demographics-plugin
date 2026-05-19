@@ -3,7 +3,7 @@ Tutor plugin for the Open edX Registration Demographics Plugin.
 
 Installs the backend Django app (openedx-registration-demographics-plugin from
 PyPI) into the LMS image and configures the frontend plugin component
-(DemographicsFields from openedx-demographics-plugin on npm) in the
+(DemographicsFields from @openedx/openedx-demographics-plugin on npm) in the
 frontend-app-authn registration form slot.
 
 Requirements:
@@ -77,7 +77,7 @@ if _tutormfe_available:
     # hooks.Filters.ENV_PATCHES.add_item(
     #    (
     #        "mfe-dockerfile-post-npm-install",
-    #        "RUN npm install openedx-demographics-plugin",
+    #        "RUN npm install @openedx/openedx-demographics-plugin",
     #    )
     # )
 
@@ -86,7 +86,7 @@ if _tutormfe_available:
     # hooks.Filters.ENV_PATCHES.add_item(
     #    (
     #        "mfe-env-config-buildtime-imports",
-    #        "import { DemographicsFields } from 'openedx-demographics-plugin';",
+    #        "import { DemographicsFields } from '@openedx/openedx-demographics-plugin';",
     #    )
     # )
 

@@ -1,15 +1,11 @@
 # Open edX Registration Demographics Plugin
 
-> **Workshop reference implementation for [OEX 2026 — Leveraging Open edX Extension Points](./workshop-plan.md).**
->
 > Install one Tutor plugin, get an end-to-end demographics-collection feature
 > across MFE, filters, events, and a Django app.
 
-This repository is the "finished state" companion to the OEX 2026 workshop. It
-demonstrates every layer of the Open edX extension-point stack by solving a
-single, real problem: **collecting additional demographic information
-(pronouns, department) during learner registration and persisting it through
-a pluggable pipeline.**
+This repository is a reference implementation that demonstrates most layers of
+the Open edX extension-point stack by solving a single, real problem:
+**collecting additional demographic information during learner registration and persisting it through a pluggable pipeline.**
 
 The structure deliberately mirrors
 [`openedx/sample-plugin`](https://github.com/openedx/sample-plugin) so that
@@ -23,8 +19,8 @@ participants can compare the two side-by-side.
 - [Plugin types & where to find them here](#plugin-types--where-to-find-them-here)
 - [Quick start](#quick-start)
 - [Repository structure](#repository-structure)
-- [Workshop section ↔ code map](#workshop-section--code-map)
 - [Workshop branches](#workshop-branches)
+- [End-to-end smoke test](#end-to-end-smoke-test)
 - [Further reading](#further-reading)
 
 ---
@@ -105,7 +101,6 @@ Verification:
 ```text
 oex26-demographics-plugin/
 ├── README.md                       ← you are here
-├── workshop-plan.md                ← workshop facilitator plan
 ├── LICENSE                         ← Apache-2.0
 ├── scripts/
 │   └── setup_dev.sh                ← automated dev environment setup
